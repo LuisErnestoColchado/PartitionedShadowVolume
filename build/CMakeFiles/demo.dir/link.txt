@@ -1,1 +1,0 @@
-/usr/bin/cc   -rdynamic CMakeFiles/demo.dir/src/app.c.o CMakeFiles/demo.dir/src/main.c.o CMakeFiles/demo.dir/src/opengl.c.o  -o demo -lglfw -lrt -lm -ldl -lGL -lGLU 

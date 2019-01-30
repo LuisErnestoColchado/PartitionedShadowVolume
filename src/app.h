@@ -1,7 +1,7 @@
 #ifndef APP_H_
 #define APP_H_
 
-void AppSetup();
+GLuint AppSetup();
 
 void AppFrame();
 

@@ -19,7 +19,7 @@ void main(){
 
 	
 	// Material del objeto tb deberian de ser uniformes
-	vec3 MaterialDiffuseColor = vec3(0.7,0.7,0.7);//texture( myTextureSampler, UV ).rgb;
+	vec3 MaterialDiffuseColor = vec3(0.3,0.3,0.3);//texture( myTextureSampler, UV ).rgb;
 	vec3 MaterialAmbientColor = vec3(0.3,0.3,0.3) * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = vec3(1.0,1.0,1.0);
 
@@ -89,18 +89,21 @@ void main(){
 	 
 		//float cosAlpha = clamp(dot(r,E),0,1); 
 	//Codigo aqui
-	if(cosTheta > 0.9){
+	/*if(cosTheta > 0.9){
 		color = MaterialDiffuseColor;
 	}
 	else if(cosTheta > 0.6){
-		color = MaterialDiffuseColor * vec3(0.3,0.3,0.3 );
+		color = MaterialDiffuseColor * vec3(0.6,0.6,0.6 );
 	}
 	else{
 		color = MaterialDiffuseColor;
-	}
+	}*/
 
 	if(cosAlpha > 0.95){
 		color = MaterialSpecularColor;
  	}
-
+	else{
+		color = MaterialDiffuseColor;
+	}
+    
 }

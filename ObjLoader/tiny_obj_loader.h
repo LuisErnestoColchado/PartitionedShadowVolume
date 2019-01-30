@@ -53,6 +53,7 @@ THE SOFTWARE.
 #ifndef TINY_OBJ_LOADER_H_
 #define TINY_OBJ_LOADER_H_
 
+#include <iostream>
 #include <map>
 #include <string>
 #include <vector>
@@ -362,6 +363,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
              const char *mtl_basedir = NULL, bool triangulate = true,
              bool default_vcols_fallback = true);
 
+bool getObj();
 /// Loads .obj from a file with custom user callback.
 /// .mtl is loaded as usual and parsed material_t data will be passed to
 /// `callback.mtllib_cb`.
@@ -1844,7 +1846,9 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
 
   size_t line_num = 0;
   std::string linebuf;
+  int count = 0;
   while (inStream->peek() != -1) {
+    count++;
     safeGetline(*inStream, linebuf);
 
     line_num++;
@@ -2220,10 +2224,10 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
 
       continue;
     }  // smoothing group id
-
+    
     // Ignore unknown command.
   }
-
+  std::cout << " n "  << count << std::endl;
   // not all vertices have colors, no default colors desired? -> clear colors
   if (!found_all_colors && !default_vcols_fallback) {
     vc.clear();
@@ -2276,6 +2280,10 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
 
   return true;
 }
+
+bool getObj(){
+  return false;
+};
 
 bool LoadObjWithCallback(std::istream &inStream, const callback_t &callback,
                          void *user_data /*= NULL*/,

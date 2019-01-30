@@ -1,12 +1,12 @@
-cmake_minimum_required(VERSION 2.8.12)
-project(opengl_cs_demo)
+cmake_minimum_required(VERSION 2.8.11)
+project(PartitionedShadowVolume)
 
 # Options
 # -------
 
 # Force the use of GLEW - if found - to handle OpenGL extensions,
 # otherwise a python script will generate functions loaders.
-set(USE_GLEW OFF)
+set(USE_GLEW ON)
 
 
 # Dependencies
@@ -32,24 +32,24 @@ if(USE_GLEW)
   endif()
 endif(USE_GLEW)
 
-
 # Paths
 # -----
 
 set(SRCDIR "./src")
 set(SHADERDIR "./shaders")
+set(OBJLOADER "./ObjLoader")
+set(COMMON "./common")
 set(THIRDPARTY "./thirdparty")
 set(TOOLS "./tools")
 
-
+ 
 # Main target build
 # -----------------
 
-set(TARGET_NAME demo)
-
-file(GLOB Sources ${SRCDIR}/*.c)
-file(GLOB Headers ${SRCDIR}/*.h)
-file(GLOB Miscs ${SHADERDIR}/*.glsl)
+set(TARGET_NAME psv)
+file(GLOB Sources */*.cc)
+file(GLOB Headers */*.h)
+file(GLOB Miscs */*.glsl)
 
 add_executable(${TARGET_NAME}
   ${Sources}
@@ -58,7 +58,7 @@ add_executable(${TARGET_NAME}
 )
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-  set(CXX_FLAGS "-O3 -Wall -pedantic -std=c99")
+  set(CXX_FLAGS "-g -O3 -Wall -std=c++11 -lGLEW ")
 elseif(MSVC)
   set(CXX_FLAGS "")
 elseif(${CMAKE_CXX_COMPILER})
@@ -67,13 +67,14 @@ else()
   message(FATAL_ERROR "no compiler was found")
 endif()
 
-set_target_properties(${TARGET_NAME} PROPERTIES
-  COMPILE_FLAGS ${CXX_FLAGS}
-)
+set_target_properties(${TARGET_NAME} PROPERTIES 
+                      LINKER_LANGUAGE CXX)
 
 include_directories(
   ${SRCDIR}
   ${THIRDPARTY}
+  ${OBJLOADER}
+  ${COMMON}
   ${GLFW_INCLUDE_DIRS}
   ${OPENGL_INCLUDE_DIRS}
   ${GLEW_INCLUDE_DIRS}
@@ -83,6 +84,7 @@ target_link_libraries(${TARGET_NAME}
   ${GLFW_STATIC_LIBRARIES}
   ${OPENGL_LIBRARIES}
   ${GLEW_LIBRARIES}
+
 )
 
 # Custom command
@@ -105,3 +107,4 @@ if(${PYTHONINTERP_FOUND})
   )
   add_dependencies(${TARGET_NAME} OpenGLExtensionGenerator)
 endif(${PYTHONINTERP_FOUND})
+

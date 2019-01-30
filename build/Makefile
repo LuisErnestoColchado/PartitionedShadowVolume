@@ -124,98 +124,287 @@ OpenGLExtensionGenerator/fast:
 .PHONY : OpenGLExtensionGenerator/fast
 
 #=============================================================================
-# Target rules for targets named demo
+# Target rules for targets named psv
 
 # Build rule for target.
-demo: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 demo
-.PHONY : demo
+psv: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 psv
+.PHONY : psv
 
 # fast build rule for target.
-demo/fast:
-	$(MAKE) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/build
-.PHONY : demo/fast
+psv/fast:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/build
+.PHONY : psv/fast
 
-src/app.o: src/app.c.o
+ObjLoader/tiny_obj_loader.o: ObjLoader/tiny_obj_loader.cc.o
+
+.PHONY : ObjLoader/tiny_obj_loader.o
+
+# target to build an object file
+ObjLoader/tiny_obj_loader.cc.o:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/ObjLoader/tiny_obj_loader.cc.o
+.PHONY : ObjLoader/tiny_obj_loader.cc.o
+
+ObjLoader/tiny_obj_loader.i: ObjLoader/tiny_obj_loader.cc.i
+
+.PHONY : ObjLoader/tiny_obj_loader.i
+
+# target to preprocess a source file
+ObjLoader/tiny_obj_loader.cc.i:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/ObjLoader/tiny_obj_loader.cc.i
+.PHONY : ObjLoader/tiny_obj_loader.cc.i
+
+ObjLoader/tiny_obj_loader.s: ObjLoader/tiny_obj_loader.cc.s
+
+.PHONY : ObjLoader/tiny_obj_loader.s
+
+# target to generate assembly for a file
+ObjLoader/tiny_obj_loader.cc.s:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/ObjLoader/tiny_obj_loader.cc.s
+.PHONY : ObjLoader/tiny_obj_loader.cc.s
+
+common/controls.o: common/controls.cc.o
+
+.PHONY : common/controls.o
+
+# target to build an object file
+common/controls.cc.o:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/common/controls.cc.o
+.PHONY : common/controls.cc.o
+
+common/controls.i: common/controls.cc.i
+
+.PHONY : common/controls.i
+
+# target to preprocess a source file
+common/controls.cc.i:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/common/controls.cc.i
+.PHONY : common/controls.cc.i
+
+common/controls.s: common/controls.cc.s
+
+.PHONY : common/controls.s
+
+# target to generate assembly for a file
+common/controls.cc.s:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/common/controls.cc.s
+.PHONY : common/controls.cc.s
+
+common/shader.o: common/shader.cc.o
+
+.PHONY : common/shader.o
+
+# target to build an object file
+common/shader.cc.o:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/common/shader.cc.o
+.PHONY : common/shader.cc.o
+
+common/shader.i: common/shader.cc.i
+
+.PHONY : common/shader.i
+
+# target to preprocess a source file
+common/shader.cc.i:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/common/shader.cc.i
+.PHONY : common/shader.cc.i
+
+common/shader.s: common/shader.cc.s
+
+.PHONY : common/shader.s
+
+# target to generate assembly for a file
+common/shader.cc.s:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/common/shader.cc.s
+.PHONY : common/shader.cc.s
+
+common/text2D.o: common/text2D.cc.o
+
+.PHONY : common/text2D.o
+
+# target to build an object file
+common/text2D.cc.o:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/common/text2D.cc.o
+.PHONY : common/text2D.cc.o
+
+common/text2D.i: common/text2D.cc.i
+
+.PHONY : common/text2D.i
+
+# target to preprocess a source file
+common/text2D.cc.i:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/common/text2D.cc.i
+.PHONY : common/text2D.cc.i
+
+common/text2D.s: common/text2D.cc.s
+
+.PHONY : common/text2D.s
+
+# target to generate assembly for a file
+common/text2D.cc.s:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/common/text2D.cc.s
+.PHONY : common/text2D.cc.s
+
+common/texture.o: common/texture.cc.o
+
+.PHONY : common/texture.o
+
+# target to build an object file
+common/texture.cc.o:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/common/texture.cc.o
+.PHONY : common/texture.cc.o
+
+common/texture.i: common/texture.cc.i
+
+.PHONY : common/texture.i
+
+# target to preprocess a source file
+common/texture.cc.i:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/common/texture.cc.i
+.PHONY : common/texture.cc.i
+
+common/texture.s: common/texture.cc.s
+
+.PHONY : common/texture.s
+
+# target to generate assembly for a file
+common/texture.cc.s:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/common/texture.cc.s
+.PHONY : common/texture.cc.s
+
+common/vboindexer.o: common/vboindexer.cc.o
+
+.PHONY : common/vboindexer.o
+
+# target to build an object file
+common/vboindexer.cc.o:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/common/vboindexer.cc.o
+.PHONY : common/vboindexer.cc.o
+
+common/vboindexer.i: common/vboindexer.cc.i
+
+.PHONY : common/vboindexer.i
+
+# target to preprocess a source file
+common/vboindexer.cc.i:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/common/vboindexer.cc.i
+.PHONY : common/vboindexer.cc.i
+
+common/vboindexer.s: common/vboindexer.cc.s
+
+.PHONY : common/vboindexer.s
+
+# target to generate assembly for a file
+common/vboindexer.cc.s:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/common/vboindexer.cc.s
+.PHONY : common/vboindexer.cc.s
+
+src/Object.o: src/Object.cc.o
+
+.PHONY : src/Object.o
+
+# target to build an object file
+src/Object.cc.o:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/Object.cc.o
+.PHONY : src/Object.cc.o
+
+src/Object.i: src/Object.cc.i
+
+.PHONY : src/Object.i
+
+# target to preprocess a source file
+src/Object.cc.i:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/Object.cc.i
+.PHONY : src/Object.cc.i
+
+src/Object.s: src/Object.cc.s
+
+.PHONY : src/Object.s
+
+# target to generate assembly for a file
+src/Object.cc.s:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/Object.cc.s
+.PHONY : src/Object.cc.s
+
+src/app.o: src/app.cc.o
 
 .PHONY : src/app.o
 
 # target to build an object file
-src/app.c.o:
-	$(MAKE) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/app.c.o
-.PHONY : src/app.c.o
+src/app.cc.o:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/app.cc.o
+.PHONY : src/app.cc.o
 
-src/app.i: src/app.c.i
+src/app.i: src/app.cc.i
 
 .PHONY : src/app.i
 
 # target to preprocess a source file
-src/app.c.i:
-	$(MAKE) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/app.c.i
-.PHONY : src/app.c.i
+src/app.cc.i:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/app.cc.i
+.PHONY : src/app.cc.i
 
-src/app.s: src/app.c.s
+src/app.s: src/app.cc.s
 
 .PHONY : src/app.s
 
 # target to generate assembly for a file
-src/app.c.s:
-	$(MAKE) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/app.c.s
-.PHONY : src/app.c.s
+src/app.cc.s:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/app.cc.s
+.PHONY : src/app.cc.s
 
-src/main.o: src/main.c.o
+src/main.o: src/main.cc.o
 
 .PHONY : src/main.o
 
 # target to build an object file
-src/main.c.o:
-	$(MAKE) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/main.c.o
-.PHONY : src/main.c.o
+src/main.cc.o:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/main.cc.o
+.PHONY : src/main.cc.o
 
-src/main.i: src/main.c.i
+src/main.i: src/main.cc.i
 
 .PHONY : src/main.i
 
 # target to preprocess a source file
-src/main.c.i:
-	$(MAKE) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/main.c.i
-.PHONY : src/main.c.i
+src/main.cc.i:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/main.cc.i
+.PHONY : src/main.cc.i
 
-src/main.s: src/main.c.s
+src/main.s: src/main.cc.s
 
 .PHONY : src/main.s
 
 # target to generate assembly for a file
-src/main.c.s:
-	$(MAKE) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/main.c.s
-.PHONY : src/main.c.s
+src/main.cc.s:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/main.cc.s
+.PHONY : src/main.cc.s
 
-src/opengl.o: src/opengl.c.o
+src/opengl.o: src/opengl.cc.o
 
 .PHONY : src/opengl.o
 
 # target to build an object file
-src/opengl.c.o:
-	$(MAKE) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/opengl.c.o
-.PHONY : src/opengl.c.o
+src/opengl.cc.o:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/opengl.cc.o
+.PHONY : src/opengl.cc.o
 
-src/opengl.i: src/opengl.c.i
+src/opengl.i: src/opengl.cc.i
 
 .PHONY : src/opengl.i
 
 # target to preprocess a source file
-src/opengl.c.i:
-	$(MAKE) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/opengl.c.i
-.PHONY : src/opengl.c.i
+src/opengl.cc.i:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/opengl.cc.i
+.PHONY : src/opengl.cc.i
 
-src/opengl.s: src/opengl.c.s
+src/opengl.s: src/opengl.cc.s
 
 .PHONY : src/opengl.s
 
 # target to generate assembly for a file
-src/opengl.c.s:
-	$(MAKE) -f CMakeFiles/demo.dir/build.make CMakeFiles/demo.dir/src/opengl.c.s
-.PHONY : src/opengl.c.s
+src/opengl.cc.s:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/opengl.cc.s
+.PHONY : src/opengl.cc.s
 
 # Help Target
 help:
@@ -226,7 +415,28 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... OpenGLExtensionGenerator"
-	@echo "... demo"
+	@echo "... psv"
+	@echo "... ObjLoader/tiny_obj_loader.o"
+	@echo "... ObjLoader/tiny_obj_loader.i"
+	@echo "... ObjLoader/tiny_obj_loader.s"
+	@echo "... common/controls.o"
+	@echo "... common/controls.i"
+	@echo "... common/controls.s"
+	@echo "... common/shader.o"
+	@echo "... common/shader.i"
+	@echo "... common/shader.s"
+	@echo "... common/text2D.o"
+	@echo "... common/text2D.i"
+	@echo "... common/text2D.s"
+	@echo "... common/texture.o"
+	@echo "... common/texture.i"
+	@echo "... common/texture.s"
+	@echo "... common/vboindexer.o"
+	@echo "... common/vboindexer.i"
+	@echo "... common/vboindexer.s"
+	@echo "... src/Object.o"
+	@echo "... src/Object.i"
+	@echo "... src/Object.s"
 	@echo "... src/app.o"
 	@echo "... src/app.i"
 	@echo "... src/app.s"

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
+#include <GL/glew.h>
 #include "app.h"
 #include "opengl.h"
 
@@ -151,45 +151,26 @@ void AppFinalize() {
 /* ========================================================================== */
 
 extern
-void AppSetup() {
-  char *src_buffer = NULL;
+GLuint AppSetup() {
+    char *src_buffer = NULL;
 
-  /* Initialize OpenGL extensions */
-  InitGL();
+    /* Initialize OpenGL extensions */
+    //InitGL();
 
-  /* setting some OpenGL properties */
-  glClearColor( 0.25f, 0.25f, 0.25f, 1.0f);
-  glDisable(GL_DEPTH_TEST);
+    /* setting some OpenGL properties */
+    //glClearColor( 0.25f, 0.25f, 0.25f, 1.0f);
+    //glDisable(GL_DEPTH_TEST);
 
-  /* Generate program shaders */
-  src_buffer = (char*)calloc(MAX_BUFFERSIZE, sizeof(char));
-  s_Global.computePgm = setupComputeProgram(src_buffer);
-  s_Global.renderPgm  = setupRenderProgram(src_buffer);
-  free(src_buffer);
+    /* Generate program shaders */
+    src_buffer = (char*)calloc(MAX_BUFFERSIZE, sizeof(char));
 
-  /* Setup programs' uniform value */
-  {
-    GLint loc = -1;
+    //OJO//s_Global.computePgm = setupComputeProgram(src_buffer);
 
-    loc = glGetUniformLocation(s_Global.computePgm, "uOutputImg");
-    glProgramUniform1i(s_Global.computePgm, loc, 0);
+    s_Global.renderPgm  = setupRenderProgram(src_buffer);
+    
+    free(src_buffer);
 
-    loc = glGetUniformLocation(s_Global.renderPgm, "uInputTex");
-    glProgramUniform1i(s_Global.renderPgm, loc, 0);
-
-    /* default tick value */
-    s_Global.tick = 0u;
-  }
-
-  /* Texture / Image object */
-  s_Global.texture = setupTexture();
-
-  /* Simple VertexArray Object for hack screen rendering */
-  glGenVertexArrays(1, &s_Global.vao);
-
-  atexit(AppFinalize);
-
-  CHECKGLERROR();
+    return s_Global.renderPgm;
 }
 
 extern
