@@ -79,11 +79,14 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
 
 	// Link the program
 	printf("Linking program\n");
+	std::cout << "shader render 1" << std::endl;
 	GLuint ProgramID = glCreateProgram();
+	std::cout << "shader render 2" << std::endl;
 	glAttachShader(ProgramID, VertexShaderID);
 	glAttachShader(ProgramID, FragmentShaderID);
+	std::cout << "shader render 3" << std::endl;
 	glLinkProgram(ProgramID);
-
+	std::cout << "shader render 4" << std::endl;
 	// Check the program
 	glGetProgramiv(ProgramID, GL_LINK_STATUS, &Result);
 	glGetProgramiv(ProgramID, GL_INFO_LOG_LENGTH, &InfoLogLength);
@@ -92,8 +95,7 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
 		glGetProgramInfoLog(ProgramID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
 		printf("%s\n", &ProgramErrorMessage[0]);
 	}
-
-	
+			
 	glDetachShader(ProgramID, VertexShaderID);
 	glDetachShader(ProgramID, FragmentShaderID);
 	
@@ -102,5 +104,39 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
 
 	return ProgramID;
 }
-
+GLuint LoadShadersBuild(const char * compute_file_path){
+	
+	// Create the shaders
+	GLuint ComputeShaderID = glCreateShader(GL_COMPUTE_SHADER);
+	std::cout << "step compute 1" << std::endl;
+	// Read the Vertex Shader code from the file
+	std::string ComputerShaderCode;
+	std::ifstream ComputeShaderStream(compute_file_path, std::ios::in);
+	if(ComputeShaderStream.is_open()){
+		std::string Line = "";
+		while(getline(ComputeShaderStream, Line))
+			ComputerShaderCode += "\n" + Line;
+		ComputeShaderStream.close();
+	}else{
+		printf("Impossible to open %s. Are you in the right directory ? Don't forget to read the FAQ !\n", compute_file_path);
+		getchar();
+		return 0;
+	}
+	std::cout << "step compute 2" << std::endl;
+	GLuint ComputeShaderProgID = glCreateShaderProgramv(GL_COMPUTE_SHADER, 1, (const char**)&ComputerShaderCode);
+	GLint Result = GL_FALSE;
+	int InfoLogLength;
+	std::cout << "step compute 3" << std::endl;
+	// Check the program
+	glGetProgramiv(ComputeShaderProgID, GL_LINK_STATUS, &Result);
+	glGetProgramiv(ComputeShaderProgID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+	if ( InfoLogLength > 0 ){
+		std::vector<char> ProgramErrorMessage(InfoLogLength+1);
+		glGetProgramInfoLog(ComputeShaderID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
+		printf("%s\n", &ProgramErrorMessage[0]);
+	}
+	std::cout << "step compute 4" << std::endl;
+	
+	return ComputeShaderProgID;
+}
 

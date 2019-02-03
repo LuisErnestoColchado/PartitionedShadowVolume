@@ -15,13 +15,28 @@ class Object{
 public:
     const char* meshFilename;
     
+    // basic triangle data structure
+    struct triangle {
+        glm::vec4 a;
+        glm::vec4 b;
+        glm::vec4 c;
+    };
+    struct node {
+	    glm::vec4 plane;
+	    uint link[4]; /* 0: positive child, 1: intersection child, 2: negative child (not used), 3: wedge angle */
+    };
 
     GLuint Texture;
     GLuint vertexbuffer;
     GLuint normalbuffer;
     GLuint uvbuffer;
+    GLuint trianglesbuffer;
+    GLuint TOPtree;
+    GLuint rootgl;
+    GLuint size;
 
-    GLuint programID;
+    GLuint programID_render;
+    GLuint programID_build;
     GLuint MatrixID;
     GLuint ViewMatrixID;
     GLuint ModelMatrixID;
@@ -29,22 +44,30 @@ public:
     GLuint TextureHandler;
     GLuint VertexArrayID;
     GLuint LightID;
-
+    GLuint sizeBufferID;
+    GLuint sizeNodeID;
+    
     glm::mat4 ModelMatrix;
     glm::vec4 lightPos;
     glm::vec4 lightRotation;
     float load_scale;
     int factor= 0.0;
-    
-    std::vector<glm::highp_vec3> vertices;
+    uint32_t sizebuffer=2000000;
+    uint32_t sizenodes=2000000*4;
+
+    std::vector<glm::vec4> vertices;
     std::vector<glm::vec2> uvs;
     std::vector<glm::vec3> normals;
+    triangle triangles[2000000];
+    node nodes[2000000*4];
+    glm::uint64 root;
 
     Object();
     Object(const char* filename, float scale=1.0);
     Object(std::vector<glm::vec3> vecs, std::vector<glm::vec2> uv, std::vector<glm::vec3> normal);
     ~Object();
     void setShadersRender(const char*,const char*);
+    void setShadersBuild(const char*);
     bool loadMesh(const char* basepath,
                     bool triangulate);
     //static void PrintInfo(const tinyobj::attrib_t& attrib,

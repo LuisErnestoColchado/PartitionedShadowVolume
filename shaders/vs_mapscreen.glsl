@@ -1,7 +1,7 @@
 #version 430 core
 
 // Aqui van los vertex buffer que mandamos al GPU
-layout(location = 0) in vec3 vertexPosition_modelspace;
+layout(location = 0) in vec4 vertexPosition_modelspace;
 layout(location = 1) in vec2 vertexUV;
 layout(location = 2) in vec3 vertexNormal_modelspace;
 
@@ -18,21 +18,20 @@ uniform mat4 V;
 uniform mat4 M;
 uniform vec3 LightPosition_worldspace;
 
-
 void main(){
 
 	// gl_position es la position del vertice despues de la proyeccion
-	gl_Position =  MVP * vec4(vertexPosition_modelspace,1);
+	gl_Position =  (MVP * vertexPosition_modelspace);
 		
 	// UV no hacemos nada mas que interpolacion
 	UV = vertexUV;
 
 	// La posicion del vertice solamente despues de la transformacion espacial (rotacion)
-	Position_worldspace = (M * vec4(vertexPosition_modelspace,1)).xyz;
+	Position_worldspace = (M * vertexPosition_modelspace).xyz;
 	//Position_worldspace = vertexPosition_modelspace;
 	// Vector que va del vertice hacia la camara
 	// En el espacio camara la posicion de la camara es 0,0,0
-	vec3 vertexPosition_cameraspace = ( V * M * vec4(vertexPosition_modelspace,1)).xyz;
+	vec3 vertexPosition_cameraspace = ( V * M * vertexPosition_modelspace).xyz;
 	EyeDirection_cameraspace = vec3(0,0,0) - vertexPosition_cameraspace;
 
 	// Vector que va del vertice hacia la camara( espacio camara) No hay M porque no transformamos la luz.

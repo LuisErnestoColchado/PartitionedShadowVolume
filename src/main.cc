@@ -67,15 +67,18 @@ int main(int argc, char * argv[]) {
 	// Accept fragment if it closer to the camera than the former one
 	glDepthFunc(GL_LESS); 
 	/* Mainloop */  
-	const char * raptorFile = "../data/raptor.obj";
+	const char * raptorFile = "../data/T-rex-skeleton_2.obj";
 	const char * plataFormfile = "../data/Empty.obj";
 	Object* obj3D = new Object(raptorFile,1.0);
 	obj3D->ModelMatrix = glm::rotate(obj3D->ModelMatrix,glm::radians(-30.0f),glm::vec3(0.0f,1.0f,0.0f));
 	obj3D->ModelMatrix = glm::translate(obj3D->ModelMatrix,glm::vec3(1.6f,0.2,-2.2f));
-	obj3D->setShadersRender("../shaders/vs_mapscreen.glsl","../shaders/fs_mapscreen.glsl");
-
+	std::cout << "step main 1" << std::endl;
+	obj3D->setShadersBuild("../shaders/cs_simple.glsl");
+		std::cout << "step main 2" << std::endl;
+	obj3D->setShadersRender("../shaders/vs_mapscreen.glsl","../shaders/fs_psv.glsl");
+	std::cout << "step main 3" << std::endl;
 	//ojo
-	Object* objp3D = new Object(plataFormfile,1.0);
+	//Object* objp3D = new Object(plataFormfile,1.0);
 	
 	//objp3D->ModelMatrix = glm::rotate(obj3D->ModelMatrix,glm::radians(-180.0f),glm::vec3(1.0f,0.0f,0.0f));
 	//objp3D->ModelMatrix = glm::rotate(obj3D->ModelMatrix,glm::radians(-180.0f),glm::vec3(0.0f,0.0f,1.0f));
@@ -83,7 +86,7 @@ int main(int argc, char * argv[]) {
 	//objp3D->ModelMatrix = glm::rotate(obj3D->ModelMatrix,glm::radians(-90.0f),glm::vec3(0.0f,0.0f,1.0f));
 	
 	//ojo
-	objp3D->setShadersRender("../shaders/vs_mapscreen.glsl","../shaders/fs_plataform.glsl");
+	//objp3D->setShadersRender("../shaders/vs_mapscreen.glsl","../shaders/fs_plataform.glsl");
 
 	do{
 
