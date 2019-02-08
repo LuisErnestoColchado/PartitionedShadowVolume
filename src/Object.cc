@@ -56,6 +56,19 @@ void Object::setShadersBuild(const char* compute){
     
 }
 
+void Object::setShader(const char* fragment){
+    programID_fragment = LoadShadersBuild(fragment);
+    // Get a handle for our "MVP" uniform
+    MatrixID = glGetUniformLocation(programID_fragment, "MVP");
+    ViewMatrixID = glGetUniformLocation(programID_fragment, "V");
+    ModelMatrixID = glGetUniformLocation(programID_fragment, "M");
+    TextureID  = glGetUniformLocation(programID_fragment, "myTextureSampler");
+    LightID = glGetUniformLocation(programID_fragment, "LightPosition_worldspace");
+    sizeBufferID = glGetUniformLocation(programID_fragment,"sizeBuffer");
+    
+}
+
+
 /*
 void Object::PrintInfo(const tinyobj::attrib_t& attrib,
                       const std::vector<tinyobj::shape_t>& shapes,
@@ -224,7 +237,37 @@ void Object::PrintInfo(const tinyobj::attrib_t& attrib,
 }*/
 bool Object::loadMesh(const char* basepath = NULL,
                         bool triangulate = true){
+    glGenBuffers(1, &trianglesbuffer);
+    glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 7, trianglesbuffer); // Buffer Binding 7
+    GLint bufMask = GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT; 
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizebuffer *  sizeof(triangle), &triangles[0], GL_DYNAMIC_COPY);
+    glUnmapBuffer( GL_SHADER_STORAGE_BUFFER );
+    //loadOBJ(meshFilename,vertices,uvs,normals);
+    //std::cout << "size vertice " << vertices.size() << std::endl;
+	  //std::cout << "finish loading" << std::endl;
+
+
+    //glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(sizeof(triangle)), &triangles[0]); 
     
+
+    std::cout << "step 2" << std::endl;
+    glGenBuffers(1, &TOPtree);
+  //    GLuint block_index = 0;
+  //block_index = glGetProgramResourceIndex(programID_build, GL_SHADER_STORAGE_BLOCK, "TOPtree");
+ // GLuint ssbo_binding_point_index = 13;
+ // glShaderStorageBlockBinding(programID_build, block_index, ssbo_binding_point_index);
+    glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 13, TOPtree); // Buffer Binding 7
+    glBufferData(GL_SHADER_STORAGE_BUFFER,sizenodes * sizeof(node), &nodes[0], GL_DYNAMIC_COPY);
+    //glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0,  4*  112597 * (sizeof(node)), &nodes[0]);
+    glUnmapBuffer( GL_SHADER_STORAGE_BUFFER );
+
+    std::cout << "step 3" << std::endl;
+    glGenBuffers(1, &rootgl);
+    glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 29, rootgl); // Buffer Binding 7
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(root), &root, GL_DYNAMIC_COPY);
+    //glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(rootgl), &root); 
+    glUnmapBuffer( GL_SHADER_STORAGE_BUFFER );
+    std::cout << "step 4" << std::endl; 
     std::cout << "Loading " << meshFilename << std::endl;
 
     tinyobj::attrib_t attrib;
@@ -286,6 +329,7 @@ bool Object::loadMesh(const char* basepath = NULL,
           tri.b = vert[i1.vertex_index];
           tri.c = vert[i2.vertex_index];
           triangles[count] = tri;
+          //std::cout << "dddd" << std::endl;
           if(i0.texcoord_index > 0 && i0.texcoord_index < text.size()){
               uvs.push_back(text[i0.texcoord_index]);
               uvs.push_back(text[i1.texcoord_index]);
@@ -298,7 +342,34 @@ bool Object::loadMesh(const char* basepath = NULL,
           count++;
       }
     }
-      
+    
+    std::cout << "size " << sizeof(triangles)/sizeof(triangle) << std::endl;
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, trianglesbuffer);
+    GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+    memcpy(p, &triangles, sizebuffer * sizeof(triangle));
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER); 
+
+    glBindVertexArray(VertexArrayID);
+    glGenBuffers(1, &vertexbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec4), &vertices[0], GL_STATIC_DRAW);
+    glUnmapBuffer( GL_ARRAY_BUFFER );
+
+    glGenBuffers(1, &uvbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+    glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec3), &uvs[0], GL_STATIC_DRAW);
+    glUnmapBuffer( GL_ARRAY_BUFFER );
+
+    glGenBuffers(1, &normalbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
+     std::cout << "step 1" << std::endl;
+    glUnmapBuffer( GL_ARRAY_BUFFER );
+    /*glBindBuffer(GL_SHADER_STORAGE_BUFFER, TOPtree);
+    GLvoid* t = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+    memcpy(t, &TOPtree, (sizebuffer+1) * sizeof(node));
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER); */
+
     /*+for (size_t v = 0; v < attrib.vertices.size() / 3; v++) {
         glm::vec3 vec = glm::vec3(float(attrib.vertices[3 * v + 0]),float(attrib.vertices[3 * v + 1]),float(attrib.vertices[3 * v + 2]));
         vertices.push_back(vec);
@@ -332,48 +403,15 @@ bool Object::loadMesh(const char* basepath = NULL,
         out_normals .push_back(normal);
 
 	    }*/
-
-    //loadOBJ(meshFilename,vertices,uvs,normals);
-    std::cout << "size vertice " << vertices.size() << std::endl;
-	  std::cout << "finish loading" << std::endl;
-   glBindVertexArray(VertexArrayID);
-    glGenBuffers(1, &vertexbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec4), &vertices[0], GL_STATIC_DRAW);
-
-    glGenBuffers(1, &uvbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-    glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec3), &uvs[0], GL_STATIC_DRAW);
-
-    glGenBuffers(1, &normalbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
-    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
-     std::cout << "step 1" << std::endl;
-    glGenBuffers(1, &trianglesbuffer);
-    glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 7, trianglesbuffer); // Buffer Binding 7
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizebuffer *  sizeof(triangle), &triangles[0], GL_DYNAMIC_COPY);
-    //glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(sizeof(triangle)), &triangles[0]); 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-    std::cout << "step 2" << std::endl;
-    glGenBuffers(1, &TOPtree);
-    glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 13, TOPtree); // Buffer Binding 7
-    glBufferData(GL_SHADER_STORAGE_BUFFER,sizenodes * sizeof(node), &nodes[0], GL_DYNAMIC_COPY);
-    //glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0,  4*  112597 * (sizeof(node)), &nodes[0]);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-    std::cout << "step 3" << std::endl;
-    glGenBuffers(1, &rootgl);
-    glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 29, rootgl); // Buffer Binding 7
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(root), &root, GL_DYNAMIC_COPY);
-    //glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(rootgl), &root); 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-    std::cout << "step 4" << std::endl;
+   
+    
     return true;
 }
 
 void Object::draw(){
   glUseProgram(programID_build);
+
+
   //std::cout << "step 4" << std::endl;
   glm::mat4 ProjectionMatrix = getProjectionMatrix();
 	glm::mat4 ViewMatrix = getViewMatrix();
@@ -384,24 +422,33 @@ void Object::draw(){
   glUniform1ui64NV(sizeBufferID, size);
 	glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
 	glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
+  //glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 13, TOPtree); // Buffer Binding 7
+  //glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 29, rootgl); // Buffer Binding 7
 
 
-  glDispatchCompute( ceil(sizebuffer / 512.0), 1, 1);
-   /*   std::cout << "first"<< std::endl;
-      glBindBuffer(GL_SHADER_STORAGE_BUFFER, TOPtree);
-  GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
-  std::cout << sizeof(p) << std::endl;
-  memcpy(p, &nodes, sizenodes * sizeof(node));
+
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, trianglesbuffer);
+  GLvoid* t = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+  //std::cout << sizeof(p) << std::endl;
+  memcpy(&trianglesc,t, sizebuffer * sizeof(triangle));
   glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
- std::cout << "second"<< std::endl;
+    std::cout << "first"<< std::endl;
+        
+
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, TOPtree);
+  GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+  //std::cout << sizeof(p) << std::endl;
+  memcpy(&nodes,p, sizenodes * sizeof(node));
+  glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+  std::cout << "second"<< std::endl;
 
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, rootgl);
   GLvoid* r = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
-  memcpy(r, &root, sizeof(root));
+  memcpy(&root,r, sizeof(root));
   glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
   std::cout << "third"<< std::endl;
-  std::cout << sizeof(nodes)/sizeof(node) << std::endl;*/
-
+    
+  glDispatchCompute( ceil(sizebuffer / 512.0), 1, 1);
   glMemoryBarrier( GL_SHADER_STORAGE_BARRIER_BIT );
   
 
@@ -432,15 +479,19 @@ void Object::draw(){
   
   //std::cout << " size top " << nodes.size() << std::endl;
 
-  
   glUseProgram(programID_render);
+  
+  //glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 13, TOPtree); // Buffer Binding 7
+  //glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 29, rootgl); // Buffer Binding 7
+
+  //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER)
 		// Send our transformation to the currently bound shader, 
 		// in the "MVP" uniform
 	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
   glUniform1ui64NV(sizeBufferID, size);
 	glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
 	glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
-
+  
 	glm::mat4 lrot = glm::rotate(glm::mat4(1.0),0.0f,glm::vec3(0,1,0));
 
 	lightPos =  lrot * lightPos;
@@ -454,6 +505,7 @@ void Object::draw(){
 	else if(lightPos.x<-7.0){
 		factor=1;
 	}
+    
 	//glm::mat4 lightM(1.0f);
 	//lightM = glm::rotate(lightM, lightRotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
 	//lightM = glm::rotate(lightM, lightRotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -511,19 +563,26 @@ void Object::draw(){
   //glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 4, uvbuffer); // Buffer Binding 7
   //glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 5, normalbuffer); // Buffer Binding 7
 
-  //glBindBuffer (GL_ARRAY_BUFFER, TOPtree); // Buffer Binding 7
+  glBindBuffer (GL_SHADER_STORAGE_BUFFER, TOPtree); // Buffer Binding 7
   //glBindBuffer(GL_ARRAY_BUFFER, TOPtree);
   //glBindBuffer (GL_ARRAY_BUFFER, root); // Buffer Binding 7
-  //glBindBuffer(GL_ARRAY_BUFFER, root);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, rootgl);
+
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, rootgl);
+  r = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+  memcpy(&root,r, sizeof(root));
+  glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
 
 		// Draw the triangles !
 	glDrawArrays(GL_TRIANGLES, 0, vertices.size() );
-  
   //std::cout << vertices.size() << std::endl;
  	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
+    std::cout << "root" << root << std::endl;
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
  // glBindBuffer( GL_ARRAY_BUFFER, 0 );
 
 }

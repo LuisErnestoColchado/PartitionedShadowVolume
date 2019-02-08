@@ -76,6 +76,7 @@ int main(int argc, char * argv[]) {
 	obj3D->setShadersBuild("../shaders/cs_simple.glsl");
 		std::cout << "step main 2" << std::endl;
 	obj3D->setShadersRender("../shaders/vs_mapscreen.glsl","../shaders/fs_psv.glsl");
+	//obj3D->setShader("../shaders/fs_psv.glsl");
 	std::cout << "step main 3" << std::endl;
 	//ojo
 	//Object* objp3D = new Object(plataFormfile,1.0);

@@ -122,11 +122,19 @@ GLuint LoadShadersBuild(const char * compute_file_path){
 		getchar();
 		return 0;
 	}
+	// Compile compute Shader
+	printf("Compiling shader : %s\n", compute_file_path);
+	char const * FragmentSourcePointer = ComputerShaderCode.c_str();
+	glShaderSource(ComputeShaderID, 1, &FragmentSourcePointer , NULL);
+	glCompileShader(ComputeShaderID);
+
 	std::cout << "step compute 2" << std::endl;
 	GLuint ComputeShaderProgID = glCreateShaderProgramv(GL_COMPUTE_SHADER, 1, (const char**)&ComputerShaderCode);
 	GLint Result = GL_FALSE;
 	int InfoLogLength;
 	std::cout << "step compute 3" << std::endl;
+	glAttachShader(ComputeShaderProgID, ComputeShaderID);
+	glLinkProgram(ComputeShaderProgID);
 	// Check the program
 	glGetProgramiv(ComputeShaderProgID, GL_LINK_STATUS, &Result);
 	glGetProgramiv(ComputeShaderProgID, GL_INFO_LOG_LENGTH, &InfoLogLength);
@@ -135,8 +143,59 @@ GLuint LoadShadersBuild(const char * compute_file_path){
 		glGetProgramInfoLog(ComputeShaderID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
 		printf("%s\n", &ProgramErrorMessage[0]);
 	}
-	std::cout << "step compute 4" << std::endl;
+	glDetachShader(ComputeShaderProgID, ComputeShaderID);
 	
+	glDeleteShader(ComputeShaderID);
+	std::cout << "step compute 4" << std::endl;
+	glCompileShader(ComputeShaderProgID);
 	return ComputeShaderProgID;
 }
+
+GLuint LoadShadersRender2(const char * fragment_file_path){
+	
+	// Create the shaders
+	GLuint FragmentID = glCreateShader(GL_FRAGMENT_SHADER);
+	std::cout << "step compute 1" << std::endl;
+	// Read the Vertex Shader code from the file
+	std::string ComputerShaderCode;
+	std::ifstream ComputeShaderStream(fragment_file_path, std::ios::in);
+	if(ComputeShaderStream.is_open()){
+		std::string Line = "";
+		while(getline(ComputeShaderStream, Line))
+			ComputerShaderCode += "\n" + Line;
+		ComputeShaderStream.close();
+	}else{
+		printf("Impossible to open %s. Are you in the right directory ? Don't forget to read the FAQ !\n", fragment_file_path);
+		getchar();
+		return 0;
+	}
+	// Compile compute Shader
+	printf("Compiling shader : %s\n", fragment_file_path);
+	char const * FragmentSourcePointer = ComputerShaderCode.c_str();
+	glShaderSource(FragmentID, 1, &FragmentSourcePointer , NULL);
+	glCompileShader(FragmentID);
+
+	std::cout << "step compute 2" << std::endl;
+	GLuint FragmentShaderProgID = glCreateShaderProgramv(GL_COMPUTE_SHADER, 1, (const char**)&ComputerShaderCode);
+	GLint Result = GL_FALSE;
+	int InfoLogLength;
+	std::cout << "step compute 3" << std::endl;
+	glAttachShader(FragmentShaderProgID, FragmentID);
+	glLinkProgram(FragmentShaderProgID);
+	// Check the program
+	glGetProgramiv(FragmentShaderProgID, GL_LINK_STATUS, &Result);
+	glGetProgramiv(FragmentShaderProgID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+	if ( InfoLogLength > 0 ){
+		std::vector<char> ProgramErrorMessage(InfoLogLength+1);
+		glGetProgramInfoLog(FragmentID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
+		printf("%s\n", &ProgramErrorMessage[0]);
+	}
+	glDetachShader(FragmentShaderProgID, FragmentID);
+	
+	glDeleteShader(FragmentID);
+	std::cout << "step compute 4" << std::endl;
+	glCompileShader(FragmentShaderProgID);
+	return FragmentShaderProgID;
+}
+
 

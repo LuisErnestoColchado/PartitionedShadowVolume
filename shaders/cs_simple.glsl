@@ -69,7 +69,8 @@ uniform mat4 MVP;
 uniform mat4 V;
 uniform mat4 M;
 uniform vec3 LightPosition_worldspace;
-uniform uint sizeBuffer;
+
+#define sizebuffer 112596
 
 // basic triangle data structure
 struct triangle {
@@ -86,7 +87,6 @@ struct node {
 
 // Number of threads per work group
 layout (local_size_x = 512,local_size_y = 1,local_size_z = 1) 	in;
-
 
 /* bind a buffer where to find all the triangles. This depends on your own program
    For models with less than 600k triangles, the thread scheduling is generally sufficient
@@ -110,7 +110,6 @@ layout (std430, binding=29) restrict buffer TOPTreeRoot	{
 	uint root; // initalized to 0
 };
 
-
 /* AtomicAdd counters
    node is the first position available in the TOPTree buffer
    triangle is the first position of a triangle waiting for insertion. It is only used by main_persistant()
@@ -128,7 +127,7 @@ vec3 getLight(){
 
 // must return the number of triangles
 uint getTriangleNumber(){
-	return sizeBuffer;
+	return sizebuffer;
 }
 
 // must return the i th triangle in the world space coordinates system
@@ -268,6 +267,7 @@ void TOPTREE_mergeShadowVolumeCastByTriangle( in uint i ){
 					}
 			}
 		}
+
 }
 
 
@@ -278,12 +278,12 @@ void TOPTREE_mergeShadowVolumeCastByTriangle( in uint i ){
 */
 void main_EG2015(void)	
 {
-    
 	const uint size = getTriangleNumber();
 	const uint i = gl_GlobalInvocationID.x;
+	
 	if ( i<size )
 		// merge triangle i in the TOP tree
-		TOPTREE_mergeShadowVolumeCastByTriangle(i);
+		 TOPTREE_mergeShadowVolumeCastByTriangle(i);
 }
 
 /*

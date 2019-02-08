@@ -12,11 +12,27 @@ out vec3 Normal_cameraspace;
 out vec3 EyeDirection_cameraspace;
 out vec3 LightDirection_cameraspace;
 
+
 // Datos uniformes al objeto
 uniform mat4 MVP;
 uniform mat4 V;
 uniform mat4 M;
 uniform vec3 LightPosition_worldspace;
+
+struct node {
+	vec4 plane;
+	uint link[4]; /* 0: positive child, 1: intersection child, 2: negative child (not used), 3: wedge angle */
+};
+
+// TOP tree buffer.
+layout (std430, binding=13) restrict buffer TOPTree	{
+	node nodes[]; 
+};
+
+// Buffer to read the root index
+layout (std430, binding=29) restrict buffer TOPTreeRoot	{
+	uint root; 
+};
 
 void main(){
 
@@ -41,6 +57,6 @@ void main(){
 	// Normal despues de la transformacion 
 	Normal_cameraspace = ( transpose(inverse(V * M)) * vec4(vertexNormal_modelspace,0)).xyz;
 
-
+	root = 24;
 
 }

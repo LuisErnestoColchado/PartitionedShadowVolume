@@ -52,10 +52,12 @@ in vec3 Position_worldspace;
 in vec3 Normal_cameraspace;
 in vec3 EyeDirection_cameraspace;
 in vec3 LightDirection_cameraspace;
+layout(location = 1) in vec2 vertexUV;
 
 // datos de salida hacia el fragment shader (lo que tenemos que calcular)
 // datos unifromes a todo el objeto
 uniform sampler2D myTextureSampler;
+
 uniform mat4 MV;
 uniform vec3 LightPosition_worldspace;
 // a TOP tree node
@@ -120,14 +122,14 @@ float TOPTREE_query( in vec3 p, in vec3 normal ){
 }
 
 // must return the fragment position in the world space coordinates system
-vec4 getFragmentPosition(){
+vec3 getFragmentPosition(){
 	// coordinates should not be interpolated !
-	return textureLod(myTextureSampler, UV,2.0);
+	return Position_worldspace;
 }
 
 // must return the fragment normal in the world coordinates system
 vec3 getFragmentNormal(){
-	return normalize( textureLod( myTextureSampler, UV,2.0).xyz);
+	return normalize( Position_worldspace);
 }
 
 // return true if a fragment exists, otherwise false (no projected geometry)
@@ -162,18 +164,20 @@ void main()
 	//else
 	//	color=vec4(1);
 
-	vec4 pos = getFragmentPosition();
+	vec3 pos = getFragmentPosition();
 	//if( fragmentExist(pos)==true )
 	//{
 		vec3 normal = getFragmentNormal();
 		vec3 light = getLight();
-		float visibility = TOPTREE_query(pos.xyz-light, normal); 
-		if(visibility  >0 ){
+		float visibility = TOPTREE_query(pos-light, normal); 
+		if(visibility  > 0 ){
 			color = MaterialDiffuseColor;
 		}
 		else{
 			color=vec3(0);
 		}
+
+		
 		//color = normal * visibility;
 		/* You may want compute the final color using visiblity (0/1), light, normal and pos ! Or whatever you want.
 		color = TO COMPLETE
