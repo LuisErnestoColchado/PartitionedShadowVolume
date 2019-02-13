@@ -53,18 +53,18 @@ public:
     glm::vec4 lightRotation;
     float load_scale;
     int factor= 0.0;
-    uint32_t sizebuffer=112596;
-    uint32_t sizenodes=112597*4;
+    uint32_t sizebuffer=2000000;
+    uint32_t sizenodes=2000001*4;
 
     std::vector<glm::vec4> vertices;
     std::vector<glm::vec2> uvs;
     std::vector<glm::vec3> normals;
-    triangle triangles[112596];
-    triangle trianglesc[112596];
+    triangle triangles[2000000];
+    triangle trianglesc[2000000];
     //struct triangle *triangles; 
-    node nodes[112597*4];
+    node nodes[2000000*4];
     glm::uint64 root;
-
+    int time = 0;
     Object();
     Object(const char* filename, float scale=1.0);
     Object(std::vector<glm::vec3> vecs, std::vector<glm::vec2> uv, std::vector<glm::vec3> normal);

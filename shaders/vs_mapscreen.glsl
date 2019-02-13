@@ -57,6 +57,5 @@ void main(){
 	// Normal despues de la transformacion 
 	Normal_cameraspace = ( transpose(inverse(V * M)) * vec4(vertexNormal_modelspace,0)).xyz;
 
-	root = 24;
 
 }

@@ -379,6 +379,33 @@ src/main.cc.s:
 	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/main.cc.s
 .PHONY : src/main.cc.s
 
+src/objectNoShadow.o: src/objectNoShadow.cc.o
+
+.PHONY : src/objectNoShadow.o
+
+# target to build an object file
+src/objectNoShadow.cc.o:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/objectNoShadow.cc.o
+.PHONY : src/objectNoShadow.cc.o
+
+src/objectNoShadow.i: src/objectNoShadow.cc.i
+
+.PHONY : src/objectNoShadow.i
+
+# target to preprocess a source file
+src/objectNoShadow.cc.i:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/objectNoShadow.cc.i
+.PHONY : src/objectNoShadow.cc.i
+
+src/objectNoShadow.s: src/objectNoShadow.cc.s
+
+.PHONY : src/objectNoShadow.s
+
+# target to generate assembly for a file
+src/objectNoShadow.cc.s:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/objectNoShadow.cc.s
+.PHONY : src/objectNoShadow.cc.s
+
 src/opengl.o: src/opengl.cc.o
 
 .PHONY : src/opengl.o
@@ -443,6 +470,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/objectNoShadow.o"
+	@echo "... src/objectNoShadow.i"
+	@echo "... src/objectNoShadow.s"
 	@echo "... src/opengl.o"
 	@echo "... src/opengl.i"
 	@echo "... src/opengl.s"

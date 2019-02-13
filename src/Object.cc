@@ -13,7 +13,7 @@ Object::Object(const char* filename, float scale){
     load_scale = scale;
 	  ModelMatrix = glm::mat4(1.0);
     size = sizebuffer;
-	  lightPos=glm::vec4(0.2,-1,1,0);
+	  lightPos=glm::vec4(1,1,1,0);
     meshFilename = filename; 
     loadMesh(NULL,true);
     //Texture = 0;
@@ -334,7 +334,7 @@ bool Object::loadMesh(const char* basepath = NULL,
               uvs.push_back(text[i0.texcoord_index]);
               uvs.push_back(text[i1.texcoord_index]);
               uvs.push_back(text[i2.texcoord_index]);
-          }
+          } 
             
           normals.push_back(normal[i0.normal_index]);
           normals.push_back(normal[i1.normal_index]);
@@ -363,7 +363,7 @@ bool Object::loadMesh(const char* basepath = NULL,
     glGenBuffers(1, &normalbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
     glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
-     std::cout << "step 1" << std::endl;
+    std::cout << "step 1" << std::endl;
     glUnmapBuffer( GL_ARRAY_BUFFER );
     /*glBindBuffer(GL_SHADER_STORAGE_BUFFER, TOPtree);
     GLvoid* t = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
@@ -409,6 +409,20 @@ bool Object::loadMesh(const char* basepath = NULL,
 }
 
 void Object::draw(){
+	glm::mat4 lrot = glm::rotate(glm::mat4(1.0),0.0f,glm::vec3(0,1,0));
+
+	lightPos =  lrot * lightPos;
+	
+	static int factor= 1;
+	if(time % 200 == 0)
+    lightPos.x += 0.1*factor;
+
+	if(lightPos.x>7.0){
+		factor=-1;
+	}
+	else if(lightPos.x<-7.0){
+		factor=1;
+	}
   glUseProgram(programID_build);
 
 
@@ -424,10 +438,10 @@ void Object::draw(){
 	glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
   //glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 13, TOPtree); // Buffer Binding 7
   //glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 29, rootgl); // Buffer Binding 7
+  glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
+  
 
-
-
-  glBindBuffer(GL_SHADER_STORAGE_BUFFER, trianglesbuffer);
+  /*glBindBuffer(GL_SHADER_STORAGE_BUFFER, trianglesbuffer);
   GLvoid* t = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
   //std::cout << sizeof(p) << std::endl;
   memcpy(&trianglesc,t, sizebuffer * sizeof(triangle));
@@ -446,7 +460,7 @@ void Object::draw(){
   GLvoid* r = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
   memcpy(&root,r, sizeof(root));
   glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-  std::cout << "third"<< std::endl;
+  std::cout << "third"<< std::endl;*/
     
   glDispatchCompute( ceil(sizebuffer / 512.0), 1, 1);
   glMemoryBarrier( GL_SHADER_STORAGE_BARRIER_BIT );
@@ -491,20 +505,6 @@ void Object::draw(){
   glUniform1ui64NV(sizeBufferID, size);
 	glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
 	glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
-  
-	glm::mat4 lrot = glm::rotate(glm::mat4(1.0),0.0f,glm::vec3(0,1,0));
-
-	lightPos =  lrot * lightPos;
-	
-	static int factor= 0.0;
-	lightPos.x += 0.1*factor;
-
-	if(lightPos.x>7.0){
-		factor=-1;
-	}
-	else if(lightPos.x<-7.0){
-		factor=1;
-	}
     
 	//glm::mat4 lightM(1.0f);
 	//lightM = glm::rotate(lightM, lightRotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -569,20 +569,20 @@ void Object::draw(){
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, rootgl);
 
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, rootgl);
+  /*  glBindBuffer(GL_SHADER_STORAGE_BUFFER, rootgl);
   r = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
   memcpy(&root,r, sizeof(root));
-  glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+  glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);*/
 
-
+  std::cout << root << std::endl;
 		// Draw the triangles !
 	glDrawArrays(GL_TRIANGLES, 0, vertices.size() );
+     //std::cout << vertices.size() << std::endl;
   //std::cout << vertices.size() << std::endl;
  	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
-    std::cout << "root" << root << std::endl;
   glBindBuffer(GL_ARRAY_BUFFER, 0);
  // glBindBuffer( GL_ARRAY_BUFFER, 0 );
-
+  time +=1;
 }

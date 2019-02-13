@@ -70,7 +70,7 @@ uniform mat4 V;
 uniform mat4 M;
 uniform vec3 LightPosition_worldspace;
 
-#define sizebuffer 112596
+#define sizebuffer 2000000
 
 // basic triangle data structure
 struct triangle {
@@ -294,7 +294,7 @@ void main_EG2015(void)
 void main_persistant(void)	
 {
     //Position_worldspace = (M * vec4(vertexPosition_modelspace,1)).xyz;
-     uint size = getTriangleNumber();
+  uint size = getTriangleNumber();
 	uint k;
 	for(k=0;k<size;k++)
 	{

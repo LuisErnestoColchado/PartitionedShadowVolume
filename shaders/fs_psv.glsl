@@ -52,8 +52,11 @@ in vec3 Position_worldspace;
 in vec3 Normal_cameraspace;
 in vec3 EyeDirection_cameraspace;
 in vec3 LightDirection_cameraspace;
+
+layout(location = 0) in vec4 vertexPosition_modelspace;
 layout(location = 1) in vec2 vertexUV;
 
+in vec3 texCoord;
 // datos de salida hacia el fragment shader (lo que tenemos que calcular)
 // datos unifromes a todo el objeto
 uniform sampler2D myTextureSampler;
@@ -124,12 +127,12 @@ float TOPTREE_query( in vec3 p, in vec3 normal ){
 // must return the fragment position in the world space coordinates system
 vec3 getFragmentPosition(){
 	// coordinates should not be interpolated !
-	return Position_worldspace;
+	return vertexPosition_modelspace.xyz;
 }
 
 // must return the fragment normal in the world coordinates system
 vec3 getFragmentNormal(){
-	return normalize( Position_worldspace);
+	return normalize(vertexPosition_modelspace).xyz;
 }
 
 // return true if a fragment exists, otherwise false (no projected geometry)
@@ -144,7 +147,7 @@ vec3 getLight(){
 out vec3 color;
 void main()
 {	
-	vec3 MaterialDiffuseColor = texture( myTextureSampler, UV ).rgb;
+	vec3 MaterialDiffuseColor = vec3(0.6,0.6,0.6);//texture( myTextureSampler, UV ).rgb;
 	vec3 MaterialAmbientColor = vec3(0.3,0.3,0.3) * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = vec3(1.0,1.0,1.0);
 /*
@@ -155,7 +158,7 @@ void main()
 	{*/
 	//	vec3 normal = getFragmentNormal();
 	//	vec3 light = getLight();
-	//	float visibility = TOPTREE_query(pos.xyz-light, normal); 
+	//	float visibility = TOPTREE_query(pos.xyz-light, normal); 2
 		
 		/* You may want compute the final color using visiblity (0/1), light, normal and pos ! Or whatever you want.*/
 		//color = MaterialDiffuseColor;
@@ -169,19 +172,86 @@ void main()
 	//{
 		vec3 normal = getFragmentNormal();
 		vec3 light = getLight();
-		float visibility = TOPTREE_query(pos-light, normal); 
-		if(visibility  > 0 ){
-			color = MaterialDiffuseColor;
+		float visibility = TOPTREE_query(pos.xyz-light, normal); 
+		if(visibility == 1){
+				vec3 n = normalize(Normal_cameraspace);
+				// Direccion de la luz : fragment -> luz antes de interpolacion era vertex -> luz
+				vec3 l = normalize( LightPosition_worldspace );
+
+				// Coseno del angulo entre la normal y la luz
+				// Producto punto ya que los vectos son normalizados
+				// clamped  0 - 1
+				//  - luz vertical -> 1
+				//  - luz perpandicular -> 0
+				//  - luz detras de triangulo -> 0
+				float cosTheta = clamp(dot(n,l),0,1);
+				//Codigo aqui
+				
+				// vector fragmento -> camera antes vertex -> camera
+				vec3 E = normalize(EyeDirection_cameraspace);
+				// reflejamos el vector Descarte (espejo perfecto)
+
+				vec3 r = reflect(-l,n);
+				//Codigo aqui
+					//vec4 pos = getFragmentPosition();
+				//if( fragmentExist(pos)==true )
+				//{
+					//vec3 normal = getFragmentNormal();
+					//vec3 light = getLight();
+					//float visibility = TOPTREE_query(pos.xyz-light, normal);
+				//	vec3 n = normalize( normal );
+				// Direccion de la luz : fragment -> luz antes de interpolacion era vertex -> luz
+				//	vec3 l = normalize( light );
+				//	vec3 r = reflect(-l,n);
+				// Coseno del angulo entre la normal y la luz
+				// Producto punto ya que los vectos son normalizados
+				// clamped  0 - 1
+				//  - luz vertical -> 1
+				//  - luz perpandicular -> 0
+				//  - luz detras de triangulo -> 0
+				//    float cosTheta = clamp(dot(n,l),0,1);
+				//	Codigo aqui
+				float cosAlpha = clamp(dot(r,E),0,1); 
+				// 	vector fragmento -> camera antes vertex -> camera
+				//	vec3 E = normalize(EyeDirection_cameraspace);
+				// 	reflejamos el vector Descarte (espejo perfecto)
+				// You may want compute the final color using visiblity (0/1), light, normal and pos ! Or whatever you want.
+
+				//}
+				//else
+				//	color=vec4(1);
+				// coseno entre luz reflejada y la direccion hacia la camara
+				// clamped  0-1
+				//  - Miramos en la reflexion -> 1
+				//  - nos alejamos de la reflexion -> < 1
+				
+					//float cosAlpha = clamp(dot(r,E),0,1); 
+				//Codigo aqui
+				if(cosTheta > 0.9){
+					color = MaterialDiffuseColor;
+				}
+				else if(cosTheta > 0.6){
+					color = MaterialDiffuseColor * vec3(0.6,0.6,0.6);
+				}
+				else{
+					color = MaterialDiffuseColor;
+				}
+
+				if(cosAlpha > 0.95){
+					color = MaterialSpecularColor;
+				}
+				else{
+					color = MaterialDiffuseColor;
+				}
 		}
 		else{
 			color=vec3(0);
 		}
-
-		
+	
+		//root = visibility;
 		//color = normal * visibility;
-		/* You may want compute the final color using visiblity (0/1), light, normal and pos ! Or whatever you want.
-		color = TO COMPLETE
-		*/
+		/* You may want compute the final color using visiblity (0/1), light, normal and pos ! Or whatever you want.	*/
+		//color = pos * normal * visibility + light;
 	//}
 	//else
 	//	color=vec4(1);
