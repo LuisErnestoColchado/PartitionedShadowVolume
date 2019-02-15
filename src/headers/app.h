@@ -7,8 +7,14 @@
 class app{
 
 public:
-    app();
+
+    app(const char *,const char *, std::vector<object*>);
+    const char * computeFile;
+    const char * fragmentFile;
+    std::vector<object*> objects;
+
     int factor= 0.0;
+    GLuint VertexArrayID;
     GLuint programBuild;
     GLuint programFragment;
     GLuint matrixID;
@@ -25,9 +31,9 @@ public:
     GLuint TOPtree;
     GLuint rootGL;
 
-    void setShadersBuild(const char *);
+    void setShadersBuild();
 
-    void setShadersRender(const char *);
+    void setShadersRender();
 
     void buildingTOPtree();
 

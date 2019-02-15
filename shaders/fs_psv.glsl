@@ -1,5 +1,5 @@
 /*
-	This code is released under the BSD license. Although not required, we 
+	This code is released under the BSD license. Although not required, we
 	appreciate hearing (frederic.mora@unilim.fr) if you use this for a commercial
 	or academic purpose, since that justifies the effort of making it available.
 	Copyright (c) 2014, Julien Gerhards and Frédéric Mora
@@ -40,18 +40,31 @@
  		year = {2015},
 	    location = {Zurich},
 	    doi = {10.1111/cgf.12583}
-	} 
-	
+	}
+
 	Please, have a look at the comments to know how to use this shader
 	All the comments "TO COMPLETE" must be replaced with few lines of code depending on your own application
 */
 #version 430
 
-in vec2 UV;
-in vec3 Position_worldspace;
-in vec3 Normal_cameraspace;
-in vec3 EyeDirection_cameraspace;
-in vec3 LightDirection_cameraspace;
+// Aqui van los vertex buffer que mandamos al GPU
+layout(location = 0) in vec4 vertexPosition_modelspace;
+layout(location = 1) in vec2 vertexUV;
+layout(location = 2) in vec3 vertexNormal_modelspace;
+
+// datos de salida hacia el fragment shader (lo que tenemos que calcular)
+out vec2 UV;
+out vec3 Position_worldspace;
+out vec3 Normal_cameraspace;
+out vec3 EyeDirection_cameraspace;
+out vec3 LightDirection_cameraspace;
+
+
+// Datos uniformes al objeto
+uniform mat4 MVP;
+uniform mat4 V;
+uniform mat4 M;
+uniform vec3 LightPosition_worldspace;
 
 layout(location = 0) in vec4 vertexPosition_modelspace;
 layout(location = 1) in vec2 vertexUV;
@@ -71,12 +84,12 @@ struct node {
 
 // TOP tree buffer.
 layout (std430, binding=13) restrict buffer TOPTree	{
-	node nodes[]; 
+	node nodes[];
 };
 
 // Buffer to read the root index
 layout (std430, binding=29) restrict buffer TOPTreeRoot	{
-	uint root; 
+	uint root;
 };
 
 
@@ -84,27 +97,27 @@ layout (std430, binding=29) restrict buffer TOPTreeRoot	{
 	p is the fragment in the world coordinates system with the light as origin
 	normal is the surface normal at p
 */
-float TOPTREE_query( in vec3 p, in vec3 normal ){ 
+float TOPTREE_query( in vec3 p, in vec3 normal ){
 	// 32 uint stack to push intersection node. 32 is the value used in the EG2015 paper for all tests on hard shadows
-    uint stack[32]; 
+    uint stack[32];
 	uint stacksize = 0;
 	const float sqdist = dot(p,p); // squared distance from p to the origin (the light)
 
 	stack[ stacksize++ ] = root; // push the root
-	
+
 	// if we are back facing the light, querying the TOP tree is not necessary
 	if ( dot( normal, -p) < 0.0 ) return 0.0;
- 	
+
  	// find the location of p...
 	while(stacksize>0){
-		// pop 
+		// pop
 		const uint current = stack[ --stacksize ];
 		const node n = nodes[ current ];
 
 		// compute the signed distance from p to the current plane
 		const float offset = dot(n.plane, vec4(p,1));
 
-		// if an intersection child exists and if current is a capping plane or if it is a shadow plane and p is inside its wedge 
+		// if an intersection child exists and if current is a capping plane or if it is a shadow plane and p is inside its wedge
 		if ( n.link[1]>0 && (current%4==3 || offset*offset / sqdist < uintBitsToFloat(n.link[3])) )
 		 		stack[ stacksize++ ] = n.link[1];
 
@@ -114,12 +127,12 @@ float TOPTREE_query( in vec3 p, in vec3 normal ){
 			if ( n.link[0]>0 ) stack[ stacksize++ ] = n.link[0];
 		}
 		// otherwise p is in the negative halfspace
-		else { 
+		else {
 			// if the negative child is a leaf, p is inside a SV and thus it is not visible from the light
-			if ( current%4==3 ) return 0.0; 
+			if ( current%4==3 ) return 0.0;
 			// otherwise the localisation of p continues in the negative child
 			else stack[ stacksize++ ] = current+1;
-		}		
+		}
 	}
 	return 1.0;
 }
@@ -137,7 +150,7 @@ vec3 getFragmentNormal(){
 
 // return true if a fragment exists, otherwise false (no projected geometry)
 /*bool fragmentExist( in vec4 frag ){
-	// TO COMPLETE 
+	// TO COMPLETE
 }*/
 
 // must return the light position in the world space coordinates system
@@ -146,7 +159,7 @@ vec3 getLight(){
 }
 out vec3 color;
 void main()
-{	
+{
 	vec3 MaterialDiffuseColor = vec3(0.6,0.6,0.6);//texture( myTextureSampler, UV ).rgb;
 	vec3 MaterialAmbientColor = vec3(0.3,0.3,0.3) * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = vec3(1.0,1.0,1.0);
@@ -159,10 +172,10 @@ void main()
 	//	vec3 normal = getFragmentNormal();
 	//	vec3 light = getLight();
 	//	float visibility = TOPTREE_query(pos.xyz-light, normal); 2
-		
+
 		/* You may want compute the final color using visiblity (0/1), light, normal and pos ! Or whatever you want.*/
 		//color = MaterialDiffuseColor;
-	
+
 	//}
 	//else
 	//	color=vec4(1);
@@ -172,7 +185,7 @@ void main()
 	//{
 		vec3 normal = getFragmentNormal();
 		vec3 light = getLight();
-		float visibility = TOPTREE_query(pos.xyz-light, normal); 
+		float visibility = TOPTREE_query(pos.xyz-light, normal);
 		if(visibility == 1){
 				vec3 n = normalize(Normal_cameraspace);
 				// Direccion de la luz : fragment -> luz antes de interpolacion era vertex -> luz
@@ -186,7 +199,7 @@ void main()
 				//  - luz detras de triangulo -> 0
 				float cosTheta = clamp(dot(n,l),0,1);
 				//Codigo aqui
-				
+
 				// vector fragmento -> camera antes vertex -> camera
 				vec3 E = normalize(EyeDirection_cameraspace);
 				// reflejamos el vector Descarte (espejo perfecto)
@@ -211,7 +224,7 @@ void main()
 				//  - luz detras de triangulo -> 0
 				//    float cosTheta = clamp(dot(n,l),0,1);
 				//	Codigo aqui
-				float cosAlpha = clamp(dot(r,E),0,1); 
+				float cosAlpha = clamp(dot(r,E),0,1);
 				// 	vector fragmento -> camera antes vertex -> camera
 				//	vec3 E = normalize(EyeDirection_cameraspace);
 				// 	reflejamos el vector Descarte (espejo perfecto)
@@ -224,8 +237,8 @@ void main()
 				// clamped  0-1
 				//  - Miramos en la reflexion -> 1
 				//  - nos alejamos de la reflexion -> < 1
-				
-					//float cosAlpha = clamp(dot(r,E),0,1); 
+
+					//float cosAlpha = clamp(dot(r,E),0,1);
 				//Codigo aqui
 				if(cosTheta > 0.9){
 					color = MaterialDiffuseColor;
@@ -247,7 +260,7 @@ void main()
 		else{
 			color=vec3(0);
 		}
-	
+
 		//root = visibility;
 		//color = normal * visibility;
 		/* You may want compute the final color using visiblity (0/1), light, normal and pos ! Or whatever you want.	*/

@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 2.8.11)
-project(PartitionedShadowVolume)
+cmake_minimum_required(VERSION 3.10)
+project(PartitionedShadowVolume C CXX)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 # Options
 # -------
@@ -37,18 +40,19 @@ endif(USE_GLEW)
 
 set(SRCDIR "./src")
 set(SHADERDIR "./shaders")
-set(OBJLOADER "./ObjLoader")
+set(OBJLOADER "./objLoader")
 set(COMMON "./common")
 set(THIRDPARTY "./thirdparty")
 set(TOOLS "./tools")
+set(HEADERS "./src/headers")
 
- 
+
 # Main target build
 # -----------------
 
 set(TARGET_NAME psv)
 file(GLOB Sources */*.cc)
-file(GLOB Headers */*.h)
+file(GLOB Headers */*/*.h)
 file(GLOB Miscs */*.glsl)
 
 add_executable(${TARGET_NAME}
@@ -67,7 +71,7 @@ else()
   message(FATAL_ERROR "no compiler was found")
 endif()
 
-set_target_properties(${TARGET_NAME} PROPERTIES 
+set_target_properties(${TARGET_NAME} PROPERTIES
                       LINKER_LANGUAGE CXX)
 
 include_directories(
@@ -75,6 +79,7 @@ include_directories(
   ${THIRDPARTY}
   ${OBJLOADER}
   ${COMMON}
+  ${HEADERS}
   ${GLFW_INCLUDE_DIRS}
   ${OPENGL_INCLUDE_DIRS}
   ${GLEW_INCLUDE_DIRS}
@@ -86,25 +91,3 @@ target_link_libraries(${TARGET_NAME}
   ${GLEW_LIBRARIES}
 
 )
-
-# Custom command
-# --------------
-
-# Automatically generate header to load OpenGL extensions
-find_package(PythonInterp)
-if(${PYTHONINTERP_FOUND})
-  set(GLEXT_GENERATOR_PATH "${TOOLS}/glextgen")
-  add_custom_target(
-    OpenGLExtensionGenerator
-    COMMAND
-      ${PYTHON_EXECUTABLE} "${GLEXT_GENERATOR_PATH}/main.py"
-                           "${GLEXT_GENERATOR_PATH}/extensions"
-                           "${SRCDIR}/ext/"
-    WORKING_DIRECTORY
-      ${CMAKE_SOURCE_DIR}
-    COMMENT
-      "Generate OpenGL extensions headers" VERBATIM
-  )
-  add_dependencies(${TARGET_NAME} OpenGLExtensionGenerator)
-endif(${PYTHONINTERP_FOUND})
-

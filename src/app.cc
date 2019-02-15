@@ -1,6 +1,11 @@
-#include "../headers/app.h"
-
-void app::setShadersBuild(const char* computeFile){
+#include "headers/app.h"
+app::app(const char * compute,const char * fragment,std::vector<object*> objs){
+    glGenVertexArrays(1, &VertexArrayID);
+    computeFile = compute;
+    fragmentFile = fragment;
+    objects = objs;
+}
+void app::setShadersBuild(){
     programBuild = LoadShadersBuild(computeFile);
 
     matrixID = glGetUniformLocation(programBuild, "MVP");
@@ -9,17 +14,7 @@ void app::setShadersBuild(const char* computeFile){
     textureID  = glGetUniformLocation(programBuild, "myTextureSampler");
     lightID = glGetUniformLocation(programBuild, "LightPosition_worldspace");
     sizeBufferID = glGetUniformLocation(programBuild,"sizeBuffer");
-}
 
-void app::setShadersRender(const char* fragmentFile){
-    programFragment = LoadShadersBuild(fragmentFile);
-
-    matrixID = glGetUniformLocation(programFragment, "MVP");
-    viewMatrixID = glGetUniformLocation(programFragment, "V");
-    modelMatrixID = glGetUniformLocation(programFragment, "M");
-    textureID  = glGetUniformLocation(programFragment, "myTextureSampler");
-    lightID = glGetUniformLocation(programFragment, "LightPosition_worldspace");
-    sizeBufferID = glGetUniformLocation(programFragment,"sizeBuffer");
     glGenBuffers(1, &trianglesBuffer);
     glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 7, trianglesBuffer);
     GLint bufMask = GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT;
@@ -39,35 +34,47 @@ void app::setShadersRender(const char* fragmentFile){
     int count = 0;
 
     for(auto o : objects)
-        sizeTriangles += o.vertices.size() / 3;
+        sizeTriangles += o->vertices.size() / 3;
 
     triangles = new triangle[sizeTriangles];
     nodes = new node[sizeTriangles * 4 + 1];
 
     for (auto obj : objects){
-        for(int i = 0;i < obj.vertices.size();i+=3){
-            totalVertices.push_back(obj.vertices[i]);
-            totalVertices.push_back(obj.vertices[i+1]);
-            totalVertices.push_back(obj.vertices[i+2]);
+        for(int i = 0;i < obj->vertices.size();i+=3){
+            totalVertices.push_back(obj->vertices[i]);
+            totalVertices.push_back(obj->vertices[i+1]);
+            totalVertices.push_back(obj->vertices[i+2]);
             triangle tri;
-            tri.a = obj.vertices[i];
-            tri.b = obj.vertices[i+1];
-            tri.c = obj.vertices[i+2];
+            tri.a = obj->vertices[i];
+            tri.b = obj->vertices[i+1];
+            tri.c = obj->vertices[i+2];
             triangles[count] = tri;
             count+=1;
         }
-        for(int i = 0;i < obj.uvs.size();i+=3){
-            totalUvs.push_back(obj.uvs[i]);
-            totalUvs.push_back(obj.uvs[i+1]);
-            totalUvs.push_back(obj.uvs[i+2]);
+        std::cout << "ddddd" << std::endl;
+        for(int i = 0;i < obj->uvs.size();i+=3){
+            totalUvs.push_back(obj->uvs[i]);
+            totalUvs.push_back(obj->uvs[i+1]);
+            totalUvs.push_back(obj->uvs[i+2]);
         }
-        for(int i = 0;i < obj.normals.size();i+=3){
-            totalNormals.push_back(obj.normals[i]);
-            totalNormals.push_back(obj.normals[i+1]);
-            totalNormals.push_back(obj.normals[i+2]);
+        for(int i = 0;i < obj->normals.size();i+=3){
+            totalNormals.push_back(obj->normals[i]);
+            totalNormals.push_back(obj->normals[i+1]);
+            totalNormals.push_back(obj->normals[i+2]);
         }
     }
 
+}
+
+void app::setShadersRender(){
+    programFragment = LoadShadersBuild(fragmentFile);
+
+    matrixID = glGetUniformLocation(programFragment, "MVP");
+    viewMatrixID = glGetUniformLocation(programFragment, "V");
+    modelMatrixID = glGetUniformLocation(programFragment, "M");
+    textureID  = glGetUniformLocation(programFragment, "myTextureSampler");
+    lightID = glGetUniformLocation(programFragment, "LightPosition_worldspace");
+    sizeBufferID = glGetUniformLocation(programFragment,"sizeBuffer");
 }
 
 void app::buildingTOPtree(){
@@ -77,6 +84,7 @@ void app::buildingTOPtree(){
     memcpy(p, &triangles, sizeTriangles * sizeof(triangle));
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
+    glBindVertexArray(VertexArrayID);
     glGenBuffers(1, &vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, totalVertices.size() * sizeof(glm::vec4), &totalVertices[0], GL_STATIC_DRAW);
@@ -139,9 +147,9 @@ void app::rendering(){
     glUniform3f(lightID, lightPos.x, lightPos.y, lightPos.z);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, Texture);
+    glBindTexture(GL_TEXTURE_2D, textureID);
 		// Set our "myTextureSampler" sampler to use Texture Unit 0
-    glUniform1i(TextureID, 0);
+    glUniform1i(textureID, 0);
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);

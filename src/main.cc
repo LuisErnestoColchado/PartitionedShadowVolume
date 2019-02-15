@@ -1,9 +1,9 @@
-#include <../headers/include.h>
-#include <../headers/object.h>
-#include <../headers/app.h>
+#include <headers/include.h>
+#include <headers/object.h>
+#include <headers/app.h>
 
 GLFWwindow* window;
-std::vector<objects> objects;
+std::vector<object*> objects;
 
 void window_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -11,11 +11,11 @@ void window_size_callback(GLFWwindow* window, int width, int height) {
 
 int main(int argc, char * argv[]) {
   	// Initialise GLFW
-  	if( !glfwInit() )
+    if( !glfwInit() )
   	{
-  		fprintf( stderr, "Failed to initialize GLFW\n" );
-  		getchar();
-  		return -1;
+  	   fprintf( stderr, "Failed to initialize GLFW\n" );
+       getchar();
+  		 return -1;
   	}
 
   	glfwWindowHint(GLFW_SAMPLES, 16);
@@ -27,10 +27,10 @@ int main(int argc, char * argv[]) {
   	window = glfwCreateWindow( 1920, 1080, "PSV", NULL, NULL);
   	glfwSetWindowPos(window, 1500, 0);
   	if( window == NULL ){
-  		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
-  		getchar();
-  		glfwTerminate();
-  		return -1;
+  	   fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
+  	   getchar();
+  	   glfwTerminate();
+       return -1;
   	}
   	glfwMakeContextCurrent(window);
 
@@ -64,17 +64,20 @@ int main(int argc, char * argv[]) {
   	const char * raptorFile = "../data/raptor.obj";
   	const char * plataformFile = "../data/Empty.obj";
 
-    Object* obj3D = new Object(raptorFile,1.0);
-    obj3D->ModelMatrix = glm::rotate(obj3D->ModelMatrix,glm::radians(-30.0f),glm::vec3(0.0f,1.0f,0.0f));
-    obj3D->ModelMatrix = glm::translate(obj3D->ModelMatrix,glm::vec3(0.2f,0.19f,-2.2f));
+    object* obj3D = new object(raptorFile,1.0);
+    obj3D->modelMatrix = glm::rotate(obj3D->modelMatrix,glm::radians(-30.0f),glm::vec3(0.0f,1.0f,0.0f));
+    obj3D->modelMatrix = glm::translate(obj3D->modelMatrix,glm::vec3(0.2f,0.19f,-2.2f));
     objects.push_back(obj3D);
 
-    obj3D = new Object(plataformFile,1.0);
-    objects.push_back(obj3D);
+    object* obj3Dp = new object(plataformFile,1.0);
+  std::cout << " 1 " << std::endl;
+    objects.push_back(obj3Dp);
 
-    app a = new app();
-    a.setShadersBuild("../shaders/cs_simple.glsl",objects);
-    a.setShadersRender("../shaders/fs_psv.glsl");
+    app * a = new app("../shaders/cs_simple.glsl","../shaders/fs_psv.glsl",objects);
+      std::cout << " 2 " << std::endl;
+    a->setShadersBuild();
+      std::cout << " 3 " << std::endl;
+    a->setShadersRender();
 
   	do{
   		/* Update and render one frame */
@@ -83,10 +86,10 @@ int main(int argc, char * argv[]) {
 
   		// Compute the MVP matrix from keyboard and mouse input
   		computeMatricesFromInputs();
-
-      a.buildingTOPtree();
-      a.rendering();
-
+      std::cout << " 2 " << std::endl;
+      a->buildingTOPtree();
+      a->rendering();
+      std::cout << " 3 " << std::endl;
   		/* Swap front & back buffers */
   		glfwSwapBuffers(window);
 

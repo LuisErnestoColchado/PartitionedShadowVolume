@@ -1,13 +1,13 @@
-#include "../headers/object.h"
+#include "headers/object.h"
 
 object::object(const char* filename, float scale){
-    
+  meshFilename = filename;
 	texture=loadBMP_custom("../data/Bone.bmp");
-    load_scale = scale;
+  load_scale = scale;
 	modelMatrix = glm::mat4(1.0);
-    loadMesh(NULL,true);
+  loadMesh(NULL,true);
 	lightPos=glm::vec4(1,1,1,0);
-    meshFilename = filename; 
+
 
 }
 
@@ -17,7 +17,7 @@ object::~object(){
 
 bool object::loadMesh(const char* basepath = NULL,
                         bool triangulate = true){
-    
+    std::cout << meshFilename << std::endl;
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
@@ -26,7 +26,7 @@ bool object::loadMesh(const char* basepath = NULL,
 
     bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warnings, &error,
                                 meshFilename, basepath, triangulate);
-  	
+
     if (!warnings.empty()) {
         std::cout << "WARN: " << warnings << std::endl;
     }
@@ -58,18 +58,18 @@ bool object::loadMesh(const char* basepath = NULL,
         normal.push_back(vec);
     }
     int value = vert.size() % 3;
-    
-    
+
+
     for (auto x : shapes){
       assert((x.mesh.indices.size() % 3) == 0);
       std::cout << x.mesh.indices.size()/3 << std::endl;
       int count = 0;
       for (size_t f = 0; f < x.mesh.indices.size() / 3; f++) {
-          
+
           tinyobj::index_t i0 = x.mesh.indices[3 * f + 0];
           tinyobj::index_t i1 = x.mesh.indices[3 * f + 1];
           tinyobj::index_t i2 =x.mesh.indices[3 * f + 2];
-          
+
           vertices.push_back(vert[i0.vertex_index]);
           vertices.push_back(vert[i1.vertex_index]);
           vertices.push_back(vert[i2.vertex_index]);
@@ -78,14 +78,14 @@ bool object::loadMesh(const char* basepath = NULL,
               uvs.push_back(text[i0.texcoord_index]);
               uvs.push_back(text[i1.texcoord_index]);
               uvs.push_back(text[i2.texcoord_index]);
-          } 
-            
+          }
+
           normals.push_back(normal[i0.normal_index]);
           normals.push_back(normal[i1.normal_index]);
           normals.push_back(normal[i2.normal_index]);
           count++;
       }
     }
-      
+
     return true;
 }
