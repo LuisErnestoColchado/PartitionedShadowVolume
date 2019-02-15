@@ -22,21 +22,6 @@ public:
     std::vector<glm::vec2> uvs;
     std::vector<glm::vec3> normals;
     
-    struct triangle {
-        glm::vec4 a;
-        glm::vec4 b;
-        glm::vec4 c;
-    };
-
-    struct node {
-        glm::vec4 plane;
-        uint link[4]; /* 0: positive child, 1: intersection child, 2: negative child (not used), 3: wedge angle */
-    };
-    triangle *triangles;
-    node *nodes;
-    uint32_t sizeTriangles;
-    uint32_t sizeNodes;  
-    
     GLint texture;
 };
 #endif 

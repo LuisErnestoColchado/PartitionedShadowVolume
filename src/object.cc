@@ -1,27 +1,19 @@
-#include <GL/glew.h>
-#include "object.h"
-//#include <../common/objloader.h>
-#include <assert.h>
-#include "../common/texture.h"
-#define MAX_BUFFERSIZE  2048
-
+#include "../headers/object.h"
 
 object::object(const char* filename, float scale){
     
-	  texture=loadBMP_custom("../data/Bone.bmp");
+	texture=loadBMP_custom("../data/Bone.bmp");
     load_scale = scale;
-	  modelMatrix = glm::mat4(1.0);
+	modelMatrix = glm::mat4(1.0);
     loadMesh(NULL,true);
-	  lightPos=glm::vec4(1,1,1,0);
+	lightPos=glm::vec4(1,1,1,0);
     meshFilename = filename; 
 
 }
 
 object::~object(){
-    delete triangles;
-    delete nodes;
+    delete meshFilename;
 }
-
 
 bool object::loadMesh(const char* basepath = NULL,
                         bool triangulate = true){
@@ -81,11 +73,6 @@ bool object::loadMesh(const char* basepath = NULL,
           vertices.push_back(vert[i0.vertex_index]);
           vertices.push_back(vert[i1.vertex_index]);
           vertices.push_back(vert[i2.vertex_index]);
-          triangle tri;
-          tri.a = vert[i0.vertex_index];
-          tri.b = vert[i1.vertex_index];
-          tri.c = vert[i2.vertex_index];
-          triangles[count] = tri;
 
           if(i0.texcoord_index > 0 && i0.texcoord_index < text.size()){
               uvs.push_back(text[i0.texcoord_index]);
@@ -99,12 +86,6 @@ bool object::loadMesh(const char* basepath = NULL,
           count++;
       }
     }
-    
-    std::cout << "size triangles " << sizeof(triangles)/sizeof(triangle) << std::endl;   
-    std::cout << "size nodes " << (sizeof(triangles)/sizeof(triangle)) * 4 + 1<< std::endl;   
-
-    sizeNodes = (sizeof(triangles)/sizeof(triangle)) * 4 + 1;
-    sizeTriangles = sizeof(triangles)/sizeof(triangle);
-    
+      
     return true;
 }
