@@ -71,30 +71,7 @@ int main(int argc, char * argv[]) {
 	const char * raptorFile = "../data/raptor.obj";
 	const char * plataFormfile = "../data/Empty.obj";
 	Object* obj3D = new Object(raptorFile,1.0);
-
-	//ojo
-	obj3D->ModelMatrix = glm::rotate(obj3D->ModelMatrix,glm::radians(-30.0f),glm::vec3(0.0f,1.0f,0.0f));
-	obj3D->ModelMatrix = glm::translate(obj3D->ModelMatrix,glm::vec3(0.2f,0.19f,-2.2f));
 	
-	//obj3D->ModelMatrix = glm::rotate(obj3D->ModelMatrix,glm::radians(-90.0f),glm::vec3(1.0f,0.0f,0.0f));
-
-	std::cout << "step main 1" << std::endl;
-	obj3D->setShadersBuild("../shaders/cs_simple.glsl");
-		std::cout << "step main 2" << std::endl;
-	obj3D->setShadersRender("../shaders/vs_mapscreen.glsl","../shaders/fs_psv.glsl");
-	//obj3D->setShader("../shaders/fs_psv.glsl");
-	std::cout << "step main 3" << std::endl;
-	//ojo
-	Object3DN* objp3D = new Object3DN(plataFormfile,1.0);
-	
-	//objp3D->ModelMatrix = glm::rotate(obj3D->ModelMatrix,glm::radians(-180.0f),glm::vec3(1.0f,0.0f,0.0f));
-	//objp3D->ModelMatrix = glm::rotate(obj3D->ModelMatrix,glm::radians(-180.0f),glm::vec3(0.0f,0.0f,1.0f));
-	//objp3D->ModelMatrix = glm::rotate(obj3D->ModelMatrix,glm::radians(180.0f),glm::vec3(1.0f,0.0f,0.0f));
-	//objp3D->ModelMatrix = glm::rotate(obj3D->ModelMatrix,glm::radians(-90.0f),glm::vec3(0.0f,0.0f,1.0f));
-	
-	//ojo
-	objp3D->setShaders("../shaders/vs_mapscreen.glsl","../shaders/fs_plataform.glsl");
-
 	do{
 
 		/* Update and render one frame */
@@ -118,4 +95,5 @@ int main(int argc, char * argv[]) {
 
 	glfwTerminate();
 	return EXIT_SUCCESS;
+	
 }
