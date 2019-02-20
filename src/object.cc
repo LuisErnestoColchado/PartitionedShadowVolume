@@ -1,22 +1,45 @@
 #include "headers/object.h"
 
-object::object(const char* filename, float scale){
-  meshFilename = filename;
-	texture=loadBMP_custom("../data/Bone.bmp");
-  load_scale = scale;
-	modelMatrix = glm::mat4(1.0);
-  loadMesh(NULL,true);
-	lightPos=glm::vec4(1,1,1,0);
+object::object(){}
 
+object::object(const char* filename, 
+            float scale,
+            bool gShadow,
+            int &sizeTriangles,
+            const char * textureFile){
+    glGenVertexArrays(1, &VertexArrayID);
+    meshFilename = filename;
+    load_scale = scale;
+    modelMatrix = glm::mat4(1.0);
+    generateShadow = gShadow;
+    lightPos = glm::vec4(1,1,1,0);
+    modelMatrix = glm::mat4(1.0);
+    texture=loadBMP_custom(textureFile);
 
+    loadMesh(NULL,true,sizeTriangles);
 }
 
 object::~object(){
-    delete meshFilename;
+
 }
 
+void object::setShaders(const char * vFile,
+                        const char * fFile){
+    programRender = LoadShaders( vFile, fFile);
+
+  	// Get a handle for our "MVP" uniform
+  	matrixID = glGetUniformLocation(programRender, "MVP");
+  	viewMatrixID = glGetUniformLocation(programRender, "V");
+  	modelMatrixID = glGetUniformLocation(programRender, "M");
+  	textureID  = glGetUniformLocation(programRender, "myTextureSampler");
+  	lightID = glGetUniformLocation(programRender, "LightPosition_worldspace");
+    sizeBufferID = glGetUniformLocation(programRender,"sizeBuffer");
+}
+
+
 bool object::loadMesh(const char* basepath = NULL,
-                        bool triangulate = true){
+                        bool triangulate = true,
+                        int &sizeTriangles){
     std::cout << meshFilename << std::endl;
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
@@ -24,8 +47,14 @@ bool object::loadMesh(const char* basepath = NULL,
     std::string warnings;
     std::string error;
 
-    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warnings, &error,
-                                meshFilename, basepath, triangulate);
+    bool ret = tinyobj::LoadObj(&attrib, 
+                                &shapes, 
+                                &materials, 
+                                &warnings, 
+                                &error,
+                                meshFilename, 
+                                basepath, 
+                                triangulate);
 
     if (!warnings.empty()) {
         std::cout << "WARN: " << warnings << std::endl;
@@ -43,8 +72,9 @@ bool object::loadMesh(const char* basepath = NULL,
     std::vector<glm::vec4> vert;
     std::vector<glm::vec2> text;
     std::vector<glm::vec3> normal;
+    glm::vec4 vec;
     for (size_t v = 0; v < attrib.vertices.size() / 3; v++) {
-        glm::vec4 vec = glm::vec4(double(attrib.vertices[3 * v + 0]),double(attrib.vertices[3 * v + 1]),double(attrib.vertices[3 * v + 2]),1);
+        vec = glm::vec4(double(attrib.vertices[3 * v + 0]),double(attrib.vertices[3 * v + 1]),double(attrib.vertices[3 * v + 2]),1);
         vert.push_back(vec);
     }
 
@@ -58,7 +88,6 @@ bool object::loadMesh(const char* basepath = NULL,
         normal.push_back(vec);
     }
     int value = vert.size() % 3;
-
 
     for (auto x : shapes){
       assert((x.mesh.indices.size() % 3) == 0);
@@ -86,6 +115,26 @@ bool object::loadMesh(const char* basepath = NULL,
           count++;
       }
     }
+    if(generateShadow == true)
+        sizeTriangles += vertices.size() / 3;
 
     return true;
 }
+void object::buildBuffers(){
+    glBindVertexArray(VertexArrayID);
+    glGenBuffers(1, &vertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec4), &vertices[0], GL_STATIC_DRAW);
+    glUnmapBuffer( GL_ARRAY_BUFFER );
+
+    glGenBuffers(1, &uvBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
+    glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec3), &uvs[0], GL_STATIC_DRAW);
+    glUnmapBuffer( GL_ARRAY_BUFFER );
+
+    glGenBuffers(1, &normalBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
+    glUnmapBuffer( GL_ARRAY_BUFFER );
+}
+

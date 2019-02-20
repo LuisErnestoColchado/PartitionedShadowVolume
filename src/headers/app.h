@@ -8,32 +8,17 @@ class app{
 
 public:
 
-    app(const char *,const char *, std::vector<object*>);
+    app(std::vector<object*>,
+        int);
     const char * computeFile;
     const char * fragmentFile;
     std::vector<object*> objects;
 
-    int factor= 0.0;
-    GLuint VertexArrayID;
-    GLuint programBuild;
-    GLuint programFragment;
-    GLuint matrixID;
-    GLuint viewMatrixID;
-    GLuint modelMatrixID;
-    GLuint textureID;
-    GLuint lightID;
-    GLuint sizeBufferID;
+    int factor= 0.0;    
 
-    GLuint vertexBuffer;
-    GLuint uvBuffer;
-    GLuint normalBuffer;
-    GLuint trianglesBuffer;
-    GLuint TOPtree;
-    GLuint rootGL;
+    void setShadersBuild(const char *);
 
-    void setShadersBuild();
-
-    void setShadersRender();
+    void getTriangles();
 
     void buildingTOPtree();
 
@@ -49,20 +34,21 @@ public:
         glm::vec4 plane;
         uint link[4]; /* 0: positive child, 1: intersection child, 2: negative child (not used), 3: wedge angle */
     };
+    
     triangle *triangles;
     node *nodes;
-    uint64_t root;
-    uint64_t sizeTriangles;
-    uint64_t sizeNodes;
+    triangle *trianglesc;
 
-    std::vector<glm::vec4> totalVertices;
-    std::vector<glm::vec2> totalUvs;
-    std::vector<glm::vec3> totalNormals;
-
+    GLuint TOPTREE;
+    GLuint rootGL;
+    GLuint trianglesBuffer;
     glm::vec4 lightPos;
-    glm::mat4 modelMatrix;
-    glm::mat4 MVP;
-    glm::mat4 viewMatrix;
+    GLuint programBuild;
+    GLuint lightID;
+    
+    uint64_t root = 0;
+    uint64_t sizeTriangles = 0;
+    uint64_t sizeNodes = 0;
 
 };
 

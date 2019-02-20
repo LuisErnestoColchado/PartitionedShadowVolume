@@ -6,22 +6,53 @@
 class object{
 public:
     object();
-    object(const char* filename, float scale=1.0);
-    object(std::vector<glm::vec3> vecs, std::vector<glm::vec2> uv, std::vector<glm::vec3> normal);
+    object(const char* filename, 
+            float scale,
+            bool gShadow,
+            int &sizeTriangle,
+            const char * textureFile);
+    object(std::vector<glm::vec3> vecs, 
+            std::vector<glm::vec2> uv, 
+            std::vector<glm::vec3> normal);
     ~object();
+    
+    GLuint VertexArrayID;
+
+    GLuint programRender;
+
+    GLuint matrixID;
+    GLuint viewMatrixID;
+    GLuint modelMatrixID;
+    GLuint textureID;
+    GLuint lightID;
+    GLuint sizeBufferID;
+
+    GLuint vertexBuffer;
+    GLuint uvBuffer;
+    GLuint normalBuffer;
+
+    GLuint texture;
 
     const char* meshFilename;
-    bool loadMesh(const char* basepath,
-                    bool triangulate);
-    float load_scale;
+    bool loadMesh(const char*,
+                    bool,
+                    int&);
+    void buildBuffers();
+    void setShaders(const char*,
+                    const char *);
     
-    glm::mat4 modelMatrix;
-    glm::vec4 lightPos;
+    float load_scale;
+
     glm::vec4 lightRotation;
     std::vector<glm::vec4> vertices;
     std::vector<glm::vec2> uvs;
     std::vector<glm::vec3> normals;
-    
-    GLint texture;
+
+    int generateShadow;
+
+    glm::vec4 lightPos;
+    glm::mat4 modelMatrix;
+    glm::mat4 MVP;
+    glm::mat4 viewMatrix;
 };
-#endif 
+#endif

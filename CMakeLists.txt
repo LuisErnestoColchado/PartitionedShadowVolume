@@ -62,7 +62,7 @@ add_executable(${TARGET_NAME}
 )
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-  set(CXX_FLAGS "-g -O3 -Wall -std=c++11 -lGLEW ")
+  set(CXX_FLAGS "-g -O3 -Wall -std=c++11 -stdlib=libc++ -lGLEW ")
 elseif(MSVC)
   set(CXX_FLAGS "")
 elseif(${CMAKE_CXX_COMPILER})

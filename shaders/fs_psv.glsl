@@ -47,24 +47,11 @@
 */
 #version 430
 
-// Aqui van los vertex buffer que mandamos al GPU
-layout(location = 0) in vec4 vertexPosition_modelspace;
-layout(location = 1) in vec2 vertexUV;
-layout(location = 2) in vec3 vertexNormal_modelspace;
-
-// datos de salida hacia el fragment shader (lo que tenemos que calcular)
-out vec2 UV;
-out vec3 Position_worldspace;
-out vec3 Normal_cameraspace;
-out vec3 EyeDirection_cameraspace;
-out vec3 LightDirection_cameraspace;
-
-
-// Datos uniformes al objeto
-uniform mat4 MVP;
-uniform mat4 V;
-uniform mat4 M;
-uniform vec3 LightPosition_worldspace;
+in vec2 UV;
+in vec3 Position_worldspace;
+in vec3 Normal_cameraspace;
+in vec3 EyeDirection_cameraspace;
+in vec3 LightDirection_cameraspace;
 
 layout(location = 0) in vec4 vertexPosition_modelspace;
 layout(location = 1) in vec2 vertexUV;
@@ -138,20 +125,25 @@ float TOPTREE_query( in vec3 p, in vec3 normal ){
 }
 
 // must return the fragment position in the world space coordinates system
-vec3 getFragmentPosition(){
+vec4 getFragmentPosition(){
 	// coordinates should not be interpolated !
-	return vertexPosition_modelspace.xyz;
+	return textureLod(myTextureSampler,vertexUV,0);
 }
 
 // must return the fragment normal in the world coordinates system
 vec3 getFragmentNormal(){
-	return normalize(vertexPosition_modelspace).xyz;
+	return normalize(textureLod(myTextureSampler,vertexUV,0)).xyz;
 }
 
 // return true if a fragment exists, otherwise false (no projected geometry)
-/*bool fragmentExist( in vec4 frag ){
-	// TO COMPLETE
-}*/
+bool fragmentExist( in vec4 frag ){
+	if(frag == vec4(0)){
+		return false;
+	}
+	else{
+		return true;
+	}
+}
 
 // must return the light position in the world space coordinates system
 vec3 getLight(){
@@ -163,40 +155,17 @@ void main()
 	vec3 MaterialDiffuseColor = vec3(0.6,0.6,0.6);//texture( myTextureSampler, UV ).rgb;
 	vec3 MaterialAmbientColor = vec3(0.3,0.3,0.3) * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = vec3(1.0,1.0,1.0);
-/*
-	//frosbite / cryengine
-	vec3 LightColor = getLight;
-	//vec4 pos = Position_worldspace;
-	/*if( fragmentExist(pos)==true )
-	{*/
-	//	vec3 normal = getFragmentNormal();
-	//	vec3 light = getLight();
-	//	float visibility = TOPTREE_query(pos.xyz-light, normal); 2
 
-		/* You may want compute the final color using visiblity (0/1), light, normal and pos ! Or whatever you want.*/
-		//color = MaterialDiffuseColor;
-
-	//}
-	//else
-	//	color=vec4(1);
-
-	vec3 pos = getFragmentPosition();
-	//if( fragmentExist(pos)==true )
-	//{
+	vec4 pos = getFragmentPosition();
+	if( fragmentExist(pos)==true )
+	{
 		vec3 normal = getFragmentNormal();
 		vec3 light = getLight();
 		float visibility = TOPTREE_query(pos.xyz-light, normal);
 		if(visibility == 1){
 				vec3 n = normalize(Normal_cameraspace);
-				// Direccion de la luz : fragment -> luz antes de interpolacion era vertex -> luz
 				vec3 l = normalize( LightPosition_worldspace );
 
-				// Coseno del angulo entre la normal y la luz
-				// Producto punto ya que los vectos son normalizados
-				// clamped  0 - 1
-				//  - luz vertical -> 1
-				//  - luz perpandicular -> 0
-				//  - luz detras de triangulo -> 0
 				float cosTheta = clamp(dot(n,l),0,1);
 				//Codigo aqui
 
@@ -205,41 +174,8 @@ void main()
 				// reflejamos el vector Descarte (espejo perfecto)
 
 				vec3 r = reflect(-l,n);
-				//Codigo aqui
-					//vec4 pos = getFragmentPosition();
-				//if( fragmentExist(pos)==true )
-				//{
-					//vec3 normal = getFragmentNormal();
-					//vec3 light = getLight();
-					//float visibility = TOPTREE_query(pos.xyz-light, normal);
-				//	vec3 n = normalize( normal );
-				// Direccion de la luz : fragment -> luz antes de interpolacion era vertex -> luz
-				//	vec3 l = normalize( light );
-				//	vec3 r = reflect(-l,n);
-				// Coseno del angulo entre la normal y la luz
-				// Producto punto ya que los vectos son normalizados
-				// clamped  0 - 1
-				//  - luz vertical -> 1
-				//  - luz perpandicular -> 0
-				//  - luz detras de triangulo -> 0
-				//    float cosTheta = clamp(dot(n,l),0,1);
-				//	Codigo aqui
 				float cosAlpha = clamp(dot(r,E),0,1);
-				// 	vector fragmento -> camera antes vertex -> camera
-				//	vec3 E = normalize(EyeDirection_cameraspace);
-				// 	reflejamos el vector Descarte (espejo perfecto)
-				// You may want compute the final color using visiblity (0/1), light, normal and pos ! Or whatever you want.
 
-				//}
-				//else
-				//	color=vec4(1);
-				// coseno entre luz reflejada y la direccion hacia la camara
-				// clamped  0-1
-				//  - Miramos en la reflexion -> 1
-				//  - nos alejamos de la reflexion -> < 1
-
-					//float cosAlpha = clamp(dot(r,E),0,1);
-				//Codigo aqui
 				if(cosTheta > 0.9){
 					color = MaterialDiffuseColor;
 				}
@@ -258,15 +194,13 @@ void main()
 				}
 		}
 		else{
-			color=vec3(0);
+			color=vec3(1);
 		}
 
-		//root = visibility;
-		//color = normal * visibility;
-		/* You may want compute the final color using visiblity (0/1), light, normal and pos ! Or whatever you want.	*/
-		//color = pos * normal * visibility + light;
-	//}
-	//else
-	//	color=vec4(1);
+	}
+	else{
+		color=vec3(1);
+	}
+
 
 }
