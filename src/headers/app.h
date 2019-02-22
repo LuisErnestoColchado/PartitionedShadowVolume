@@ -14,7 +14,7 @@ public:
     const char * fragmentFile;
     std::vector<object*> objects;
 
-    int factor= 0.0;    
+    int factor= 0.0;
 
     void setShadersBuild(const char *);
 
@@ -34,19 +34,20 @@ public:
         glm::vec4 plane;
         uint link[4]; /* 0: positive child, 1: intersection child, 2: negative child (not used), 3: wedge angle */
     };
-    
-    triangle *triangles;
-    node *nodes;
-    triangle *trianglesc;
+
+    triangle triangles[2000000];
+    node nodes[(2000000+1)*4];
+    triangle trianglesc[(2000000+1)*4];;
 
     GLuint TOPTREE;
     GLuint rootGL;
     GLuint trianglesBuffer;
     glm::vec4 lightPos;
+    glm::vec3 colores[2];
     GLuint programBuild;
     GLuint lightID;
-    
-    uint64_t root = 0;
+    GLuint colorID;
+    glm::uint64 root = 0;
     uint64_t sizeTriangles = 0;
     uint64_t sizeNodes = 0;
 

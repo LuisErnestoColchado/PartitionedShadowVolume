@@ -63,20 +63,21 @@ uniform sampler2D myTextureSampler;
 
 uniform mat4 MV;
 uniform vec3 LightPosition_worldspace;
+uniform vec3 matColor;
 // a TOP tree node
 struct node {
-	vec4 plane;
-	uint link[4]; /* 0: positive child, 1: intersection child, 2: negative child (not used), 3: wedge angle */
+		vec4 plane;
+		uint link[4]; /* 0: positive child, 1: intersection child, 2: negative child (not used), 3: wedge angle */
 };
 
 // TOP tree buffer.
 layout (std430, binding=13) restrict buffer TOPTree	{
-	node nodes[];
+		node nodes[];
 };
 
 // Buffer to read the root index
 layout (std430, binding=29) restrict buffer TOPTreeRoot	{
-	uint root;
+		uint root;
 };
 
 
@@ -85,87 +86,92 @@ layout (std430, binding=29) restrict buffer TOPTreeRoot	{
 	normal is the surface normal at p
 */
 float TOPTREE_query( in vec3 p, in vec3 normal ){
-	// 32 uint stack to push intersection node. 32 is the value used in the EG2015 paper for all tests on hard shadows
-    uint stack[32];
-	uint stacksize = 0;
-	const float sqdist = dot(p,p); // squared distance from p to the origin (the light)
+		// 32 uint stack to push intersection node. 32 is the value used in the EG2015 paper for all tests on hard shadows
+	  uint stack[32];
+		uint stacksize = 0;
+		const float sqdist = dot(p,p); // squared distance from p to the origin (the light)
 
-	stack[ stacksize++ ] = root; // push the root
+		stack[ stacksize++ ] = root; // push the root
 
-	// if we are back facing the light, querying the TOP tree is not necessary
-	if ( dot( normal, -p) < 0.0 ) return 0.0;
+		// if we are back facing the light, querying the TOP tree is not necessary
+		if ( dot( normal, -p) < 0.0 ) return 0.0;
 
- 	// find the location of p...
-	while(stacksize>0){
-		// pop
-		const uint current = stack[ --stacksize ];
-		const node n = nodes[ current ];
+	 	// find the location of p...
+		while(stacksize>0){
+				// pop
+				const uint current = stack[ --stacksize ];
+				const node n = nodes[ current ];
 
-		// compute the signed distance from p to the current plane
-		const float offset = dot(n.plane, vec4(p,1));
+				// compute the signed distance from p to the current plane
+				const float offset = dot(n.plane, vec4(p,1));
 
-		// if an intersection child exists and if current is a capping plane or if it is a shadow plane and p is inside its wedge
-		if ( n.link[1]>0 && (current%4==3 || offset*offset / sqdist < uintBitsToFloat(n.link[3])) )
-		 		stack[ stacksize++ ] = n.link[1];
+				// if an intersection child exists and if current is a capping plane or if it is a shadow plane and p is inside its wedge
+				if ( n.link[1]>0 && (current%4==3 || offset*offset / sqdist < uintBitsToFloat(n.link[3])) )
+				 		stack[ stacksize++ ] = n.link[1];
 
-		// if p is in the positive halfspace of the plane
-		if ( offset>0.0 ){
-			// the location of p continues in the positive child if it exists
-			if ( n.link[0]>0 ) stack[ stacksize++ ] = n.link[0];
+				// if p is in the positive halfspace of the plane
+				if ( offset>0.0 ){
+					// the location of p continues in the positive child if it exists
+						if ( n.link[0]>0 ) stack[ stacksize++ ] = n.link[0];
+				}
+				// otherwise p is in the negative halfspace
+				else {
+						// if the negative child is a leaf, p is inside a SV and thus it is not visible from the light
+						if ( current%4==3 ) return 0.0;
+						// otherwise the localisation of p continues in the negative child
+						else stack[ stacksize++ ] = current+1;
+			}
 		}
-		// otherwise p is in the negative halfspace
-		else {
-			// if the negative child is a leaf, p is inside a SV and thus it is not visible from the light
-			if ( current%4==3 ) return 0.0;
-			// otherwise the localisation of p continues in the negative child
-			else stack[ stacksize++ ] = current+1;
-		}
-	}
-	return 1.0;
+		return 1.0;
 }
 
 // must return the fragment position in the world space coordinates system
-vec4 getFragmentPosition(){
-	// coordinates should not be interpolated !
-	return textureLod(myTextureSampler,vertexUV,0);
+vec3 getFragmentPosition(){
+		// coordinates should not be interpolated !
+		//return textureLod(myTextureSampler,vertexUV,0);
+		return vertexPosition_modelspace.xyz;
 }
 
 // must return the fragment normal in the world coordinates system
 vec3 getFragmentNormal(){
-	return normalize(textureLod(myTextureSampler,vertexUV,0)).xyz;
+		return normalize(vertexPosition_modelspace).xyz;
 }
 
 // return true if a fragment exists, otherwise false (no projected geometry)
-bool fragmentExist( in vec4 frag ){
-	if(frag == vec4(0)){
-		return false;
-	}
-	else{
-		return true;
-	}
+bool fragmentExist( in vec3 frag ){
+		if(frag == vec3(0)){
+				return false;
+		}
+		else{
+				return true;
+		}
 }
 
 // must return the light position in the world space coordinates system
 vec3 getLight(){
-	return LightPosition_worldspace;
+		return LightPosition_worldspace;
 }
 out vec3 color;
 void main()
 {
-	vec3 MaterialDiffuseColor = vec3(0.6,0.6,0.6);//texture( myTextureSampler, UV ).rgb;
+	//if(UV != 0)
+	//	vec3 MaterialDiffuseColor = texture(myTextureSampler, UV).rgb;
+	//else
+		vec3 MaterialDiffuseColor = matColor;
 	vec3 MaterialAmbientColor = vec3(0.3,0.3,0.3) * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = vec3(1.0,1.0,1.0);
 
-	vec4 pos = getFragmentPosition();
-	if( fragmentExist(pos)==true )
-	{
+	vec3 pos = getFragmentPosition();
+	//if( fragmentExist(pos)==true )
+	//{
 		vec3 normal = getFragmentNormal();
 		vec3 light = getLight();
+
 		float visibility = TOPTREE_query(pos.xyz-light, normal);
 		if(visibility == 1){
 				vec3 n = normalize(Normal_cameraspace);
-				vec3 l = normalize( LightPosition_worldspace );
 
+				vec3 l = normalize( LightPosition_worldspace );
 				float cosTheta = clamp(dot(n,l),0,1);
 				//Codigo aqui
 
@@ -194,13 +200,9 @@ void main()
 				}
 		}
 		else{
-			color=vec3(1);
+
+					color = vec3(0);
+
 		}
-
-	}
-	else{
-		color=vec3(1);
-	}
-
 
 }

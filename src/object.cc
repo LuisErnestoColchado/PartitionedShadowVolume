@@ -2,7 +2,7 @@
 
 object::object(){}
 
-object::object(const char* filename, 
+object::object(const char* filename,
             float scale,
             bool gShadow,
             int &sizeTriangles,
@@ -14,7 +14,9 @@ object::object(const char* filename,
     generateShadow = gShadow;
     lightPos = glm::vec4(1,1,1,0);
     modelMatrix = glm::mat4(1.0);
-    texture=loadBMP_custom(textureFile);
+
+    texture = loadBMP_custom(textureFile);
+
 
     loadMesh(NULL,true,sizeTriangles);
 }
@@ -33,13 +35,16 @@ void object::setShaders(const char * vFile,
   	modelMatrixID = glGetUniformLocation(programRender, "M");
   	textureID  = glGetUniformLocation(programRender, "myTextureSampler");
   	lightID = glGetUniformLocation(programRender, "LightPosition_worldspace");
+    colorID = glGetUniformLocation(programRender, "matColor");
     sizeBufferID = glGetUniformLocation(programRender,"sizeBuffer");
 }
 
 
-bool object::loadMesh(const char* basepath = NULL,
-                        bool triangulate = true,
+bool object::loadMesh(const char* basepath,
+                        bool triangulate,
                         int &sizeTriangles){
+    basepath = NULL;
+    triangulate = true;
     std::cout << meshFilename << std::endl;
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
@@ -47,13 +52,13 @@ bool object::loadMesh(const char* basepath = NULL,
     std::string warnings;
     std::string error;
 
-    bool ret = tinyobj::LoadObj(&attrib, 
-                                &shapes, 
-                                &materials, 
-                                &warnings, 
+    bool ret = tinyobj::LoadObj(&attrib,
+                                &shapes,
+                                &materials,
+                                &warnings,
                                 &error,
-                                meshFilename, 
-                                basepath, 
+                                meshFilename,
+                                basepath,
                                 triangulate);
 
     if (!warnings.empty()) {
@@ -115,6 +120,7 @@ bool object::loadMesh(const char* basepath = NULL,
           count++;
       }
     }
+    std::cout << meshFilename << " " << text.size() << std::endl;
     if(generateShadow == true)
         sizeTriangles += vertices.size() / 3;
 
@@ -137,4 +143,3 @@ void object::buildBuffers(){
     glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
     glUnmapBuffer( GL_ARRAY_BUFFER );
 }
-

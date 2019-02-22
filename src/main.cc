@@ -63,32 +63,34 @@ int main(int argc, char * argv[]) {
   	/* Mainloop */
   	const char * raptorFile = "../data/raptor.obj";
   	const char * plataformFile = "../data/Empty.obj";
-		const char * textureFile = "../data/Bone.bmp";
+		const char * textureFileRaptor = "../data/Bone.bmp";
+    const char * textureFilePlata = "../data/cueva.bmp";
 		int sizeTriangle = 0;
 
-    object* obj3D = new object(raptorFile,1.0,true,sizeTriangle,textureFile);
+    object* obj3D = new object(raptorFile,1.0,true,sizeTriangle,textureFileRaptor);
     obj3D->modelMatrix = glm::rotate(obj3D->modelMatrix,glm::radians(-30.0f),glm::vec3(0.0f,1.0f,0.0f));
     obj3D->modelMatrix = glm::translate(obj3D->modelMatrix,glm::vec3(0.2f,0.19f,-2.2f));
-    object* obj3Dp = new object(raptorFile,1.0,false,sizeTriangle,textureFile);
-
-		obj3D->setShaders("../shaders/vs_mapscreen.glsl","../shaders/fs_psv.glsl");
+    object* obj3Dp = new object(plataformFile,1.0,false,sizeTriangle,textureFilePlata);
+    obj3D->buildBuffers();
+    obj3Dp->buildBuffers();
+	  obj3D->setShaders("../shaders/vs_mapscreen.glsl","../shaders/fs_psv.glsl");
 		obj3Dp->setShaders("../shaders/vs_mapscreen.glsl","../shaders/fs_psv.glsl");
     objects.push_back(obj3D);
     objects.push_back(obj3Dp);
 
     app * a = new app(objects,sizeTriangle);
+    a->getTriangles();
     a->setShadersBuild("../shaders/cs_simple.glsl");
+
     //a->setShadersRender();
   	do{
   		/* Update and render one frame */
   		//AppFrame();
   		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+      a->buildingTOPtree();
   		// Compute the MVP matrix from keyboard and mouse input
   		computeMatricesFromInputs();
-      std::cout << " 2 " << std::endl;
-      a->buildingTOPtree();
-            std::cout << " 3 " << std::endl;
+
       a->rendering();
 
   		/* Swap front & back buffers */

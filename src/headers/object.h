@@ -6,16 +6,16 @@
 class object{
 public:
     object();
-    object(const char* filename, 
+    object(const char* filename,
             float scale,
             bool gShadow,
             int &sizeTriangle,
             const char * textureFile);
-    object(std::vector<glm::vec3> vecs, 
-            std::vector<glm::vec2> uv, 
+    object(std::vector<glm::vec3> vecs,
+            std::vector<glm::vec2> uv,
             std::vector<glm::vec3> normal);
     ~object();
-    
+
     GLuint VertexArrayID;
 
     GLuint programRender;
@@ -40,7 +40,7 @@ public:
     void buildBuffers();
     void setShaders(const char*,
                     const char *);
-    
+
     float load_scale;
 
     glm::vec4 lightRotation;
@@ -49,7 +49,7 @@ public:
     std::vector<glm::vec3> normals;
 
     int generateShadow;
-
+    GLuint colorID;
     glm::vec4 lightPos;
     glm::mat4 modelMatrix;
     glm::mat4 MVP;
