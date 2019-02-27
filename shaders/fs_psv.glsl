@@ -80,7 +80,6 @@ layout (std430, binding=29) restrict buffer TOPTreeRoot	{
 		uint root;
 };
 
-
 /* return 0 if p is in shadow, 1 otherwise
 	p is the fragment in the world coordinates system with the light as origin
 	normal is the surface normal at p
@@ -94,7 +93,7 @@ float TOPTREE_query( in vec3 p, in vec3 normal ){
 		stack[ stacksize++ ] = root; // push the root
 
 		// if we are back facing the light, querying the TOP tree is not necessary
-		if ( dot( normal, -p) < 0.0 ) return 0.0;
+		//if ( dot( normal, -p) < 0.0 ) return 0.0;
 
 	 	// find the location of p...
 		while(stacksize>0){
@@ -107,7 +106,7 @@ float TOPTREE_query( in vec3 p, in vec3 normal ){
 
 				// if an intersection child exists and if current is a capping plane or if it is a shadow plane and p is inside its wedge
 				if ( n.link[1]>0 && (current%4==3 || offset*offset / sqdist < uintBitsToFloat(n.link[3])) )
-				 		stack[ stacksize++ ] = n.link[1];
+						stack[ stacksize++ ] = n.link[1];
 
 				// if p is in the positive halfspace of the plane
 				if ( offset>0.0 ){
@@ -120,7 +119,7 @@ float TOPTREE_query( in vec3 p, in vec3 normal ){
 						if ( current%4==3 ) return 0.0;
 						// otherwise the localisation of p continues in the negative child
 						else stack[ stacksize++ ] = current+1;
-			}
+				}
 		}
 		return 1.0;
 }
@@ -129,12 +128,12 @@ float TOPTREE_query( in vec3 p, in vec3 normal ){
 vec3 getFragmentPosition(){
 		// coordinates should not be interpolated !
 		//return textureLod(myTextureSampler,vertexUV,0);
-		return vertexPosition_modelspace.xyz;
+		return Position_worldspace;
 }
 
 // must return the fragment normal in the world coordinates system
 vec3 getFragmentNormal(){
-		return normalize(vertexPosition_modelspace).xyz;
+		return normalize(Position_worldspace).xyz;
 }
 
 // return true if a fragment exists, otherwise false (no projected geometry)
@@ -154,55 +153,54 @@ vec3 getLight(){
 out vec3 color;
 void main()
 {
-	//if(UV != 0)
-	//	vec3 MaterialDiffuseColor = texture(myTextureSampler, UV).rgb;
-	//else
+		//if(UV != 0)
+		//	vec3 MaterialDiffuseColor = texture(myTextureSampler, UV).rgb;
+		//else
 		vec3 MaterialDiffuseColor = matColor;
-	vec3 MaterialAmbientColor = vec3(0.3,0.3,0.3) * MaterialDiffuseColor;
-	vec3 MaterialSpecularColor = vec3(1.0,1.0,1.0);
+		//if(normalize(matColor) == vec3(0.2,0.2,0.2))
+		//		MaterialDiffuseColor = texture( myTextureSampler, UV ).rgb;;
+		vec3 MaterialAmbientColor = vec3(0.1,0.1,0.1) * MaterialDiffuseColor;
+		vec3 MaterialSpecularColor = vec3(1.0,1.0,1.0);
 
-	vec3 pos = getFragmentPosition();
-	//if( fragmentExist(pos)==true )
-	//{
-		vec3 normal = getFragmentNormal();
-		vec3 light = getLight();
+		vec3 pos = getFragmentPosition();
+		if( fragmentExist(pos)==true )
+		{
+				vec3 normal = getFragmentNormal();
+				vec3 light = getLight();
 
-		float visibility = TOPTREE_query(pos.xyz-light, normal);
-		if(visibility == 1){
-				vec3 n = normalize(Normal_cameraspace);
+				float visibility = TOPTREE_query(pos-light, normal);
+				if(visibility == 1){
+						vec3 n = normalize(Normal_cameraspace);
 
-				vec3 l = normalize( LightPosition_worldspace );
-				float cosTheta = clamp(dot(n,l),0,1);
-				//Codigo aqui
+						vec3 l = normalize( LightPosition_worldspace );
+						float cosTheta = clamp(dot(n,l),0,1);
 
-				// vector fragmento -> camera antes vertex -> camera
-				vec3 E = normalize(EyeDirection_cameraspace);
-				// reflejamos el vector Descarte (espejo perfecto)
+						// vector fragmento -> camera antes vertex -> camera
+						vec3 E = normalize(EyeDirection_cameraspace);
+						// reflejamos el vector Descarte (espejo perfecto)
 
-				vec3 r = reflect(-l,n);
-				float cosAlpha = clamp(dot(r,E),0,1);
+						vec3 r = reflect(-l,n);
+						float cosAlpha = clamp(dot(r,E),0,1);
 
-				if(cosTheta > 0.9){
-					color = MaterialDiffuseColor;
-				}
-				else if(cosTheta > 0.6){
-					color = MaterialDiffuseColor * vec3(0.6,0.6,0.6);
+						if(cosTheta > 0.9){
+								color = MaterialDiffuseColor;
+						}
+						else if(cosTheta > 0.6){
+								color = MaterialDiffuseColor * vec3(0.6,0.6,0.6);
+						}
+						else{
+								color = MaterialDiffuseColor;
+						}
+
+						if(cosAlpha > 0.95){
+								color = MaterialSpecularColor;
+						}
+						else{
+								color = MaterialDiffuseColor;
+						}
 				}
 				else{
-					color = MaterialDiffuseColor;
+						color = vec3(0);
 				}
-
-				if(cosAlpha > 0.95){
-					color = MaterialSpecularColor;
-				}
-				else{
-					color = MaterialDiffuseColor;
-				}
-		}
-		else{
-
-					color = vec3(0);
-
-		}
-
+	}
 }

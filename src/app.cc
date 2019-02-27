@@ -1,38 +1,31 @@
 #include "headers/app.h"
-
+#include <new>
+#include <new>
 app::app(std::vector<object*> objs,
         int sizeTriangles){
 
-    objects = objs;
+    this->objects = objs;
     this->sizeTriangles = sizeTriangles;
-    lightPos = glm::vec4(4.0,2.0,2.0,0);
-    colores[0] = glm::vec3(0.7,0.7,0.7);
-    colores[1] = glm::vec3(0.3,0.3,0.3);
-/*  IF OTHER OBJS
-    sizeNodes = (sizeTriangles+1) * 4;
-    triangles = new triangle[sizeTriangles];
-    nodes = new node[sizeNodes];
-    trianglesc = new triangle[sizeTriangles];*/
+
+    this->lightPos = glm::vec4(0,3,5,0);
+    this->colores[0] = glm::vec3(0.7,0.7,0.7);
+    this->colores[1] = glm::vec3(0.2,0.2,0.2);
+
+    sizeNodes = (sizeTriangles * 4) + 1 ;
+    /*  IF OTHER OBJS*/
+    //this->triangles = new (std::nothrow) triangle[sizeTriangles];
+    //this->nodes = new (std::nothrow) node[sizeNodes];
+    //trianglesc = new triangle[sizeTriangles];
 }
 
 void app::getTriangles(){
-
     std::cout << " get triangles 1 " << std::endl;
+
     glGenBuffers(1, &trianglesBuffer);
     glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 7, trianglesBuffer);
     GLint bufMask = GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT;
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeTriangles *  sizeof(triangle), &triangles[0], GL_DYNAMIC_COPY);
-    glUnmapBuffer( GL_SHADER_STORAGE_BUFFER );
-
-    glGenBuffers(1, &TOPTREE);
-    glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 13, TOPTREE);
-    glBufferData(GL_SHADER_STORAGE_BUFFER,sizeNodes * sizeof(node), &nodes[0], GL_DYNAMIC_COPY);
-    glUnmapBuffer( GL_SHADER_STORAGE_BUFFER );
-    std::cout << "size nodess "<< sizeNodes << std::endl;
-    glGenBuffers(1, &rootGL);
-    glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 29, rootGL);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(root), &root, GL_DYNAMIC_COPY);
-    glUnmapBuffer( GL_SHADER_STORAGE_BUFFER );
+    glUnmapBuffer( GL_SHADER_STORAGE_BUFFER);
 
     int count = 0;
 
@@ -64,6 +57,25 @@ void app::setShadersBuild(const char * sFile){
 }
 
 void app::buildingTOPtree(){
+      std::cout << "Starting the build of the TOP TREE" << std::endl;
+
+
+    variable.node = 0;
+    variable.triangle = 0;
+    glGenBuffers(1, &TOPTREE);
+    glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 13, TOPTREE);
+    glBufferData(GL_SHADER_STORAGE_BUFFER,sizeNodes * sizeof(node), &nodes[0], GL_DYNAMIC_COPY);
+    glUnmapBuffer( GL_SHADER_STORAGE_BUFFER );
+
+    glGenBuffers(1, &rootGL);
+    glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 29, rootGL);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(root), &root, GL_DYNAMIC_COPY);
+    glUnmapBuffer( GL_SHADER_STORAGE_BUFFER );
+
+    glGenBuffers(1, &utilGL);
+    glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 30, utilGL);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(util), &variable, GL_DYNAMIC_COPY);
+    glUnmapBuffer( GL_SHADER_STORAGE_BUFFER );
 
     glm::mat4 lrot = glm::rotate(glm::mat4(1.0),0.0f,glm::vec3(0,1,0));
 
@@ -71,31 +83,30 @@ void app::buildingTOPtree(){
 
       //change light
   	//if(time % 200 == 0)
-    //int factor = 1;
-    //lightPos.x += 0.1*factor;
-    //lightPos.y += 0.1*factor;
-    //lightPos.z += 0.1*factor;
-    //if(lightPos.x>7.0){
-  	//	factor=-1;
-  	//}
-  	//else if(lightPos.x<-7.0){
-  	//	factor=1;
-  	//}
+    /*int factor = 0;
+    lightPos.x += 0.1*factor;
+    lightPos.y += 0.1*factor;
+    lightPos.z += 0.1*factor;
+    if(lightPos.x>7.0){
+  		factor=-1;
+  	}
+  	else if(lightPos.x<-7.0){
+  		factor=1;
+  	}*/
 
-    std::cout << "Starting the build of the TOP TREE" << std::endl;
 
     glUseProgram(programBuild);
     glUniform3f(lightID, lightPos.x, lightPos.y, lightPos.z);
-    glDispatchCompute( ceil(sizeTriangles / 512.0), 1, 1);
+    glDispatchCompute( ceil(sizeTriangles / 36.0), 1, 1);
     glMemoryBarrier( GL_SHADER_STORAGE_BARRIER_BIT );
-
-   glBindBuffer(GL_SHADER_STORAGE_BUFFER, trianglesBuffer);
+   /*
+glBindBuffer(GL_SHADER_STORAGE_BUFFER, trianglesBuffer);
     GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
     memcpy(&trianglesc,p, sizeTriangles * sizeof(triangle));
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-    std::cout << "triangle p2 " << trianglesc[2].a[2] << std::endl;
+    std::cout << "triangle p2 " << trianglesc[2].a[2] << std::endl;*/
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, rootGL);
+    /*glBindBuffer(GL_SHADER_STORAGE_BUFFER, rootGL);
     GLvoid* r = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
     memcpy(&root,r, sizeof(root));
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
@@ -105,11 +116,11 @@ void app::buildingTOPtree(){
     GLvoid* t = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
     memcpy(&nodes,t, sizeNodes * sizeof(node));
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-    std::cout << "node " << nodes[2].plane[1] << std::endl;
+    std::cout << "node " << nodes[2].plane[1] << std::endl;*/
 }
 
 void app::rendering(){
-    std::cout << "Starting rendering" << std::endl;
+    //std::cout << "Starting rendering" << std::endl;
     int count = 0;
 
     for(auto object : objects){
@@ -117,7 +128,6 @@ void app::rendering(){
         glm::mat4 lrot = glm::rotate(glm::mat4(1.0),0.0f,glm::vec3(0,1,0));
 
         //lightPos =  lrot * lightPos;
-
         //change light
         //if(time % 200 == 0)
         /*int factor = 0;
@@ -137,8 +147,7 @@ void app::rendering(){
         glUniformMatrix4fv(object->modelMatrixID, 1, GL_FALSE, &(object->modelMatrix[0][0]));
         glUniformMatrix4fv(object->viewMatrixID, 1, GL_FALSE, &(object->viewMatrix[0][0]));
 
-        glUniform3f(lightID, lightPos.x, lightPos.y, lightPos.z);
-
+        glUniform3f(object->lightID, lightPos.x, lightPos.y, lightPos.z);
         glUniform3f(object->colorID,  colores[count].x, colores[count].y, colores[count].z);
 
         glActiveTexture(GL_TEXTURE0);
@@ -188,7 +197,7 @@ void app::rendering(){
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, rootGL);
 
         // Draw the triangles !
-        std::cout << " SIZE " << object->vertices.size() << std::endl;
+        //std::cout << " SIZE " << object->vertices.size() << std::endl;
         glDrawArrays(GL_TRIANGLES, 0, object->vertices.size());
 
         glDisableVertexAttribArray(0);
@@ -196,5 +205,14 @@ void app::rendering(){
         glDisableVertexAttribArray(2);
         count++;
     }
+}
+
+void app::cleanBuffers(){
+    root = 0;
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, rootGL);
+    GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+    memcpy(p, &root, sizeof(root));
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
 
 }

@@ -12,7 +12,6 @@ object::object(const char* filename,
     load_scale = scale;
     modelMatrix = glm::mat4(1.0);
     generateShadow = gShadow;
-    lightPos = glm::vec4(1,1,1,0);
     modelMatrix = glm::mat4(1.0);
 
     texture = loadBMP_custom(textureFile);
@@ -99,7 +98,6 @@ bool object::loadMesh(const char* basepath,
       std::cout << x.mesh.indices.size()/3 << std::endl;
       int count = 0;
       for (size_t f = 0; f < x.mesh.indices.size() / 3; f++) {
-
           tinyobj::index_t i0 = x.mesh.indices[3 * f + 0];
           tinyobj::index_t i1 = x.mesh.indices[3 * f + 1];
           tinyobj::index_t i2 =x.mesh.indices[3 * f + 2];
@@ -113,7 +111,7 @@ bool object::loadMesh(const char* basepath,
               uvs.push_back(text[i1.texcoord_index]);
               uvs.push_back(text[i2.texcoord_index]);
           }
-
+          
           normals.push_back(normal[i0.normal_index]);
           normals.push_back(normal[i1.normal_index]);
           normals.push_back(normal[i2.normal_index]);

@@ -3,7 +3,7 @@
 
 #include "include.h"
 #include "object.h"
-
+#define SIZEOFTRIANGLE 2000000
 class app{
 
 public:
@@ -21,8 +21,8 @@ public:
     void getTriangles();
 
     void buildingTOPtree();
-
     void rendering();
+    void cleanBuffers();
 
     struct triangle {
         glm::vec4 a;
@@ -35,12 +35,20 @@ public:
         uint link[4]; /* 0: positive child, 1: intersection child, 2: negative child (not used), 3: wedge angle */
     };
 
-    triangle triangles[2000000];
-    node nodes[(2000000+1)*4];
-    triangle trianglesc[(2000000+1)*4];;
+    struct util{
+        uint node = 0;
+        uint triangle = 0;
+    } variable;
+    //112596
+    triangle triangles[SIZEOFTRIANGLE];
+    node nodes[SIZEOFTRIANGLE*4+1];
+
+    //triangle * triangles;
+    //node * nodes;
 
     GLuint TOPTREE;
     GLuint rootGL;
+    GLuint utilGL;
     GLuint trianglesBuffer;
     glm::vec4 lightPos;
     glm::vec3 colores[2];

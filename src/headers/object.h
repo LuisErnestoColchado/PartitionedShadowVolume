@@ -50,7 +50,6 @@ public:
 
     int generateShadow;
     GLuint colorID;
-    glm::vec4 lightPos;
     glm::mat4 modelMatrix;
     glm::mat4 MVP;
     glm::mat4 viewMatrix;
