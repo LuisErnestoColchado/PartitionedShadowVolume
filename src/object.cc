@@ -10,9 +10,8 @@ object::object(const char* filename,
     glGenVertexArrays(1, &VertexArrayID);
     meshFilename = filename;
     load_scale = scale;
-    modelMatrix = glm::mat4(1.0);
+    modelMatrix = glm::mat4(1);
     generateShadow = gShadow;
-    modelMatrix = glm::mat4(1.0);
 
     texture = loadBMP_custom(textureFile);
 
@@ -111,7 +110,7 @@ bool object::loadMesh(const char* basepath,
               uvs.push_back(text[i1.texcoord_index]);
               uvs.push_back(text[i2.texcoord_index]);
           }
-          
+
           normals.push_back(normal[i0.normal_index]);
           normals.push_back(normal[i1.normal_index]);
           normals.push_back(normal[i2.normal_index]);

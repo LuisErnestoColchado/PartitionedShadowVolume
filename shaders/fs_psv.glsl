@@ -48,7 +48,7 @@
 #version 430
 
 in vec2 UV;
-in vec3 Position_worldspace;
+in vec4 Position_worldspace;
 in vec3 Normal_cameraspace;
 in vec3 EyeDirection_cameraspace;
 in vec3 LightDirection_cameraspace;
@@ -125,7 +125,7 @@ float TOPTREE_query( in vec3 p, in vec3 normal ){
 }
 
 // must return the fragment position in the world space coordinates system
-vec3 getFragmentPosition(){
+vec4 getFragmentPosition(){
 		// coordinates should not be interpolated !
 		//return textureLod(myTextureSampler,vertexUV,0);
 		return Position_worldspace;
@@ -137,8 +137,8 @@ vec3 getFragmentNormal(){
 }
 
 // return true if a fragment exists, otherwise false (no projected geometry)
-bool fragmentExist( in vec3 frag ){
-		if(frag == vec3(0)){
+bool fragmentExist( in vec4 frag ){
+		if(frag.w == 0){
 				return false;
 		}
 		else{
@@ -153,22 +153,29 @@ vec3 getLight(){
 out vec3 color;
 void main()
 {
+		bool isGenerator = true;
 		//if(UV != 0)
-		//	vec3 MaterialDiffuseColor = texture(myTextureSampler, UV).rgb;
+		//vec3 MaterialDiffuseColor = texture(myTextureSampler, UV).rgb;
 		//else
 		vec3 MaterialDiffuseColor = matColor;
-		//if(normalize(matColor) == vec3(0.2,0.2,0.2))
-		//		MaterialDiffuseColor = texture( myTextureSampler, UV ).rgb;;
+		if(matColor.x == 0.2 &&
+			 matColor.y == 0.2 &&
+			 matColor.z == 0.2){
+			 isGenerator = false;
+			 //MaterialDiffuseColor = vec3(0.2,0.2,0.2);
+		}
+		//isGenerator = false;
+
 		vec3 MaterialAmbientColor = vec3(0.1,0.1,0.1) * MaterialDiffuseColor;
 		vec3 MaterialSpecularColor = vec3(1.0,1.0,1.0);
 
-		vec3 pos = getFragmentPosition();
+		vec4 pos = getFragmentPosition();
 		if( fragmentExist(pos)==true )
 		{
 				vec3 normal = getFragmentNormal();
 				vec3 light = getLight();
 
-				float visibility = TOPTREE_query(pos-light, normal);
+				float visibility = TOPTREE_query(pos.xyz-light, normal);
 				if(visibility == 1){
 						vec3 n = normalize(Normal_cameraspace);
 
@@ -192,7 +199,7 @@ void main()
 								color = MaterialDiffuseColor;
 						}
 
-						if(cosAlpha > 0.95){
+						if(cosAlpha > 0.95 && isGenerator == true){
 								color = MaterialSpecularColor;
 						}
 						else{
@@ -203,4 +210,6 @@ void main()
 						color = vec3(0);
 				}
 	}
+	else
+			color = vec3(1);
 }

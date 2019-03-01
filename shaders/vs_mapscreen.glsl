@@ -7,7 +7,7 @@ layout(location = 2) in vec3 vertexNormal_modelspace;
 
 // datos de salida hacia el fragment shader (lo que tenemos que calcular)
 out vec2 UV;
-out vec3 Position_worldspace;
+out vec4 Position_worldspace;
 out vec3 Normal_cameraspace;
 out vec3 EyeDirection_cameraspace;
 out vec3 LightDirection_cameraspace;
@@ -43,7 +43,7 @@ void main(){
 		UV = vertexUV;
 
 		// La posicion del vertice solamente despues de la transformacion espacial (rotacion)
-		Position_worldspace = (M * vertexPosition_modelspace).xyz;
+		Position_worldspace = (M * vertexPosition_modelspace);
 		//Position_worldspace = vertexPosition_modelspace;
 		// Vector que va del vertice hacia la camara
 		// En el espacio camara la posicion de la camara es 0,0,0

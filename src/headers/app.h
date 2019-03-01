@@ -3,11 +3,14 @@
 
 #include "include.h"
 #include "object.h"
+//rex 112596
+//robot 171452
+//machine 134777
+//raptor 2000000
 #define SIZEOFTRIANGLE 2000000
 class app{
 
 public:
-
     app(std::vector<object*>,
         int);
     const char * computeFile;

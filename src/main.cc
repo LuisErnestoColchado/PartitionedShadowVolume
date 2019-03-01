@@ -1,7 +1,7 @@
 #include <headers/include.h>
 #include <headers/object.h>
 #include <headers/app.h>
-
+#include <chrono>
 GLFWwindow* window;
 std::vector<object*> objects;
 
@@ -61,21 +61,25 @@ int main(int argc, char * argv[]) {
   	// Accept fragment if it closer to the camera than the former one
   	glDepthFunc(GL_LESS);
   	/* Mainloop */
-    const char * rexFile = "../data/T-rex-skeleton_2.obj";
+    const char * rexFile = "../data/T-rex-skeleton_21.obj";
+    const char * robotFile = "../data/androrobot.obj";
+    const char * machineFile = "../data/machine.obj";
   	const char * raptorFile = "../data/raptor.obj";
   	const char * plataformFile = "../data/Empty.obj";
 		const char * textureFileRaptor = "../data/Bone.bmp";
-    const char * textureFilePlata = "../data/Bone.bmp";
+    const char * textureFilePlata = "../data/cueva.bmp";
 		int sizeTriangle = 0;
 
     object* obj3D = new object(raptorFile,1.0,true,sizeTriangle,textureFileRaptor);
+    std::cout << "size triangles " <<  sizeTriangle << std::endl;
 		//obj3D->modelMatrix = glm::rotate(obj3D->modelMatrix,glm::radians(-90.0f),glm::vec3(1.0f,0.0f,0.0f));
 		//RAPTOR
     //obj3D->modelMatrix = glm::rotate(obj3D->modelMatrix,glm::radians(-30.0f),glm::vec3(0.0f,1.0f,0.0f));
     //obj3D->modelMatrix = glm::translate(obj3D->modelMatrix,glm::vec3(0.2f,0.19f,-2.2f));
-    //obj3D->modelMatrix = glm::translate(obj3D->modelMatrix,glm::vec3(0.0f,0.0f,0.0f));
+    //obj3D->modelMatrix = glm::translate(obj3D->modelMatrix,glm::vec3(0.0f,0.0f,10.0f));
     object* obj3Dp = new object(plataformFile,1.0,false,sizeTriangle,textureFilePlata);
-    obj3Dp->modelMatrix = glm::translate(obj3D->modelMatrix,glm::vec3(0.0f,-0.1f,2.7f));
+    //obj3Dp->modelMatrix = glm::translate(obj3D->modelMatrix,glm::vec3(0.0f,-0.1f,2.7f));
+
     obj3D->buildBuffers();
     obj3Dp->buildBuffers();
 	  obj3D->setShaders("../shaders/vs_mapscreen.glsl","../shaders/fs_psv.glsl");
@@ -83,13 +87,22 @@ int main(int argc, char * argv[]) {
     objects.push_back(obj3D);
     objects.push_back(obj3Dp);
 
-    //std::cout << "size triangles " << sizeTriangle << std::endl;
+
     app * a = new app(objects,sizeTriangle);
     a->getTriangles();
     a->setShadersBuild("../shaders/cs_simple.glsl");
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    start = std::chrono::system_clock::now();
     a->buildingTOPtree();
+    end = std::chrono::system_clock::now();
+    int elapsed_seconds = std::chrono::duration_cast<std::chrono::milliseconds>
+                             (end-start).count();
+    std::cout << "time " << elapsed_seconds << std::endl;
+    int countFrame = 0;
     //a->setShadersRender();
   	do{
+      std::chrono::time_point<std::chrono::system_clock> start, end;
+      start = std::chrono::system_clock::now();
   		/* Update and render one frame */
   		//AppFrame();
   		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -97,6 +110,8 @@ int main(int argc, char * argv[]) {
   		// Compute the MVP matrix from keyboard and mouse input
   		computeMatricesFromInputs();
 
+      if (glfwGetKey(window, GLFW_KEY_ENTER ) == GLFW_PRESS)
+          a->buildingTOPtree();
 
       a->rendering();
       //a->cleanBuffers();
@@ -105,7 +120,11 @@ int main(int argc, char * argv[]) {
 
   		/* Manage events */
   		glfwPollEvents();
-
+      end = std::chrono::system_clock::now();
+      elapsed_seconds = std::chrono::duration_cast<std::chrono::milliseconds>
+                               (end-start).count();
+      std::cout << "time F" << elapsed_seconds << std::endl;
+      countFrame++;
     }while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
   			glfwWindowShouldClose(window) == 0 );
 

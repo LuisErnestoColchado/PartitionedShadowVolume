@@ -7,7 +7,7 @@ app::app(std::vector<object*> objs,
     this->objects = objs;
     this->sizeTriangles = sizeTriangles;
 
-    this->lightPos = glm::vec4(0,3,5,0);
+    this->lightPos = glm::vec4(0,15,5,0);
     this->colores[0] = glm::vec3(0.7,0.7,0.7);
     this->colores[1] = glm::vec3(0.2,0.2,0.2);
 
@@ -78,10 +78,12 @@ void app::buildingTOPtree(){
     glUnmapBuffer( GL_SHADER_STORAGE_BUFFER );
 
     glm::mat4 lrot = glm::rotate(glm::mat4(1.0),0.0f,glm::vec3(0,1,0));
+    int factor = 1;
+    lightPos.x += 0.0001*factor;
 
   	//lightPos =  lrot * lightPos;
 
-      //change light
+    //change light
   	//if(time % 200 == 0)
     /*int factor = 0;
     lightPos.x += 0.1*factor;
@@ -126,19 +128,22 @@ void app::rendering(){
     for(auto object : objects){
         glUseProgram(object->programRender);
         glm::mat4 lrot = glm::rotate(glm::mat4(1.0),0.0f,glm::vec3(0,1,0));
-
+        //glScalef(-90000,-90000,-90000);
+        //glTranslatef(200,200,200);
         //lightPos =  lrot * lightPos;
         //change light
         //if(time % 200 == 0)
-        /*int factor = 0;
-        lightPos.x += 0.1*factor;
+        //int factor = 1;
+        //lightPos.y += 0.1*factor;
 
-        if(lightPos.x>7.0){
+        /*if(lightPos.x>7.0){
             factor=-1;
         }
         else if(lightPos.x<-7.0){
             factor=1;
         }*/
+        //int factor = 1;
+        //lightPos.x += 0.0001*factor;
         glm::mat4 ProjectionMatrix = getProjectionMatrix();
 	      object->viewMatrix = getViewMatrix();
 	      object->MVP = ProjectionMatrix * object->viewMatrix * object->modelMatrix;
