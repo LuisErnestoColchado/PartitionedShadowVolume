@@ -1,5 +1,5 @@
 /*
-	This code is released under the BSD license. Although not required, we 
+	This code is released under the BSD license. Although not required, we
 	appreciate hearing (frederic.mora@unilim.fr) if you use this for a commercial
 	or academic purpose, since that justifies the effort of making it available.
 	Copyright (c) 2014, Julien Gerhards and Frédéric Mora
@@ -40,7 +40,7 @@
  		year = {2015},
 	    location = {Zurich},
 	    doi = {10.1111/cgf.12583}
-	} 
+	}
 	Please, have a look at the comments to know how to use this shader
 	All the comments "TO COMPLETE" must be replaced with few lines of code depending on your own application
 */
@@ -48,7 +48,7 @@
 #version 430 core
 
 // comment if the geometry does not support front face culling
-#define FFCULLING 
+#define FFCULLING
 
 /* Aqui van los vertex buffer que mandamos al GPU
 layout(location = 0) in vec4 vertexPosition_modelspace;
@@ -65,35 +65,32 @@ layout(location = 2) in vec3 vertexNormal_modelspace;
 //out vec3 LightDirection_cameraspace;
 
 // Datos uniformes al objeto
-uniform mat4 MVP;
-uniform mat4 V;
-uniform mat4 M;
 uniform vec3 LightPosition_worldspace;
-
-#define sizebuffer 2000000
+//rex 112596
+#define sizebuffer 112596
 
 // basic triangle data structure
 struct triangle {
-	vec4 a;
-	vec4 b;
-	vec4 c;
+		vec4 a;
+		vec4 b;
+		vec4 c;
 };
 
 // a TOP tree node
 struct node {
-	vec4 plane;
-	uint link[4]; /* 0: positive child, 1: intersection child, 2: negative child (not used), 3: wedge angle */
+		vec4 plane;
+		uint link[4]; /* 0: positive child, 1: intersection child, 2: negative child (not used), 3: wedge angle */
 };
 
 // Number of threads per work group
-layout (local_size_x = 512,local_size_y = 1,local_size_z = 1) 	in;
+layout (local_size_x = 36,local_size_y = 1,local_size_z = 1) 	in;
 
 /* bind a buffer where to find all the triangles. This depends on your own program
    For models with less than 600k triangles, the thread scheduling is generally sufficient
    to induce a random insertion of the triangles in the TOP tree. Otherwise you may want to add
    a permutation list as described in the PSV paper.*/
 layout (std430, binding=7) restrict buffer Triangles{
-	triangle triangles[]; 
+		triangle triangles[];
 };
 
 /* TOP tree buffer.
@@ -102,50 +99,49 @@ layout (std430, binding=7) restrict buffer Triangles{
    it is more convenient to write inner nodes from index 4.
 */
 layout (std430, binding=13) restrict buffer TOPTree	{
-	node nodes[]; 
+		node nodes[];
 };
 
 // Buffer to write/read the root index
 layout (std430, binding=29) restrict buffer TOPTreeRoot	{
-	uint root; // initalized to 0
+		uint root; // initalized to 0
 };
 
 /* AtomicAdd counters
    node is the first position available in the TOPTree buffer
    triangle is the first position of a triangle waiting for insertion. It is only used by main_persistant()
 */
-layout (std430,binding=30) buffer util { 
-	uint node; // initialized to 4
-	uint triangle;  // initialized to 0
+layout (std430,binding=30) buffer util {
+		uint node; // initialized to 4
+		uint triangle;  // initialized to 0
 } index;
 
 
 // must return the light position in the world space coordinates system
 vec3 getLight(){
-    return LightPosition_worldspace;
+		return LightPosition_worldspace;
 }
 
 // must return the number of triangles
 uint getTriangleNumber(){
-	return sizebuffer;
+		return sizebuffer;
 }
 
 // must return the i th triangle in the world space coordinates system
 triangle getTriangle( in uint i ){
-	return triangles[i];
+		return triangles[i];
 }
 
 
 // return the plane defined by the light and the segment v1v2 (assuming the light is the origin)
 vec4 computeShadowPlane( in vec3 v1, in vec3 v2)
 {
-	// due to numerical inacurracy, the plane light-v1-v2 may be different from the plane light-v2-v1
-	// thus it is safer to consider the vertices always in the same order
-	if ( v1.x < v2.x ) // partial test, but generally it is sufficient in practice. Otherwise y-axis and z-axis has to be tested
-		return vec4(  normalize( cross(v1, v2-v1) ), 0.0);
-	else
-		return vec4( -normalize( cross(v2, v1-v2) ), 0.0);
-
+		// due to numerical inacurracy, the plane light-v1-v2 may be different from the plane light-v2-v1
+		// thus it is safer to consider the vertices always in the same order
+		if ( v1.x < v2.x ) // partial test, but generally it is sufficient in practice. Otherwise y-axis and z-axis has to be tested
+				return vec4(  normalize( cross(v1, v2-v1) ), 0.0);
+		else
+				return vec4( -normalize( cross(v2, v1-v2) ), 0.0);
 }
 
 /* return the position of the triangle ABC wrt the plane.
@@ -155,11 +151,11 @@ vec4 computeShadowPlane( in vec3 v1, in vec3 v2)
 */
 int trianglePosition(in vec3 A, in vec3 B, in vec3 C, in vec4 plane)
 {
-	const int sig = int(sign( dot(plane, vec4(A, 1)) )) +
-					int(sign( dot(plane, vec4(B, 1)) )) +
-					int(sign( dot(plane, vec4(C, 1)) )) ;
+		const int sig = int(sign( dot(plane, vec4(A, 1)) )) +
+						int(sign( dot(plane, vec4(B, 1)) )) +
+						int(sign( dot(plane, vec4(C, 1)) )) ;
 
-	return abs(sig)==3 ? sig : 0;
+		return abs(sig)==3 ? sig : 0;
 }
 
 /* return the angle (its squared sine) that defines the wedge enclosing triangle ABC from the light wrt a shadow plane
@@ -167,15 +163,15 @@ int trianglePosition(in vec3 A, in vec3 B, in vec3 C, in vec4 plane)
 */
 float wedgeAngle( in vec4 plane, in vec3 A, in vec3 B, in vec3 C)
 {
-	float d1 = dot(plane, vec4(A, 1)); // distance from A to the shadow plane
-	float d2 = dot(plane, vec4(B, 1)); // distance from B to the shadow plane
-	float d3 = dot(plane, vec4(C, 1)); // distance from C to the shadow plane
-	// recall that a shadow plane contains the light
-	d1 = d1*d1 / dot(A,A); // squared sine of the angle between the shadow plane and the segment lightA
-	d2 = d2*d2 / dot(B,B); // squared sine of the angle between the shadow plane and the segment lightB
-	d3 = d3*d3 / dot(C,C); // squared sine of the angle between the shadow plane and the segment lightC
-	
-    return(max(d1,max(d2,d3))); // return the maximum of the 3 (squared) sines
+		float d1 = dot(plane, vec4(A, 1)); // distance from A to the shadow plane
+		float d2 = dot(plane, vec4(B, 1)); // distance from B to the shadow plane
+		float d3 = dot(plane, vec4(C, 1)); // distance from C to the shadow plane
+		// recall that a shadow plane contains the light
+		d1 = d1*d1 / dot(A,A); // squared sine of the angle between the shadow plane and the segment lightA
+		d2 = d2*d2 / dot(B,B); // squared sine of the angle between the shadow plane and the segment lightB
+		d3 = d3*d3 / dot(C,C); // squared sine of the angle between the shadow plane and the segment lightC
+
+	    return(max(d1,max(d2,d3))); // return the maximum of the 3 (squared) sines
 }
 
 
@@ -201,23 +197,25 @@ void TOPTREE_mergeShadowVolumeCastByTriangle( in uint i ){
 		if ( capping_plane.w < 0.0 ) // Front Face Culling enable
 #endif
 		{
-			// book 4 nodes in the TOP tree buffer to represent the SV generated by the light and triangle ABC 
-			const uint insertion = atomicAdd(index.node, 4);
-			node sp1,sp2,sp3,cp;
-			// initialize the 4 nodes with the 3 shadow planes and the capping plane
-			sp1.plane 		= computeShadowPlane(A, B);
-			sp2.plane 		= computeShadowPlane(B, C);
-			sp3.plane 		= computeShadowPlane(C, A);
-			cp.plane 	    = -capping_plane;
+				// book 4 nodes in the TOP tree buffer to represent the SV generated by the light and triangle ABC
 
-#ifndef FFCULLING 
+				const uint insertion = atomicAdd(index.node, 4);
+
+				node sp1,sp2,sp3,cp;
+				// initialize the 4 nodes with the 3 shadow planes and the capping plane
+				sp1.plane 		= computeShadowPlane(A, B);
+				sp2.plane 		= computeShadowPlane(B, C);
+				sp3.plane 		= computeShadowPlane(C, A);
+				cp.plane 	    = -capping_plane;
+
+#ifndef FFCULLING
 			if ( capping_plane.w > 0.0 ) // correct SV orientation for triangles front facing the light
 			{
-				sp1.plane = -sp1.plane;
-				sp2.plane = -sp2.plane;
-				sp3.plane = -sp3.plane;
-				cp.plane  = -cp.plane;
-			}	
+					sp1.plane = -sp1.plane;
+					sp2.plane = -sp2.plane;
+					sp3.plane = -sp3.plane;
+					cp.plane  = -cp.plane;
+			}
 #endif
 			// slightly translate the capping plane away from the light to get ride of self shading artifacts
 			cp.plane.w += 0.0001;
@@ -233,8 +231,8 @@ void TOPTREE_mergeShadowVolumeCastByTriangle( in uint i ){
 			sp2.link[0] = 0;		sp2.link[1] = 0;		sp2.link[2] = insertion+2;		sp2.link[3] = 0;
 			sp3.link[0] = 0;		sp3.link[1] = 0;		sp3.link[2] = insertion+3;	    sp3.link[3] = 0;
 			cp.link[0]  = 0;	    cp.link[1]  = 0;    	cp.link[2]  = 0;			   	cp.link[3]  = 0;
-*/			
-			// write the nodes in the array. Notice that this four node are connected by their negative child. 
+*/
+			// write the nodes in the array. Notice that this four node are connected by their negative child.
 			// However we do not use link[2]. Instead we will compute the negative index on the fly to avoid a buffer read
 			nodes[insertion  ] = sp1;
 			nodes[insertion+1] = sp2;
@@ -243,29 +241,34 @@ void TOPTREE_mergeShadowVolumeCastByTriangle( in uint i ){
 			// if root equals 0, the TOP tree is empty and root is replaced by insertion that becomes the new root index.
 			// Otherwise we simply get the root index of the TOP tree
 			uint current = atomicCompSwap(root, 0, insertion);
+
 			// find the triangle location (except if the tree was empty)
 			while( current != 0)
 			{
-				// compute the triangle position wrt the current plane
-				const int pos = trianglePosition(A, B, C, nodes[current].plane); 
-						
-				if(pos<0) // the triangle is fully in the negative halfspace, compute the negative index
-					if (current%4==3) current=0; // if the negative child is a leaf, the triangle is inside a shadow volume. This is an early termination case without merging the shadow volume.
-					else ++current;	// otherwise, continue in the negative child	
-				else
-					if(pos>0) // the triangle is fully in the positive halfspace
-						// if link[0] equals 0, the positive child is a leaf. Thus 0 is replaced by insertion, merging the shadow volume
-						// cast by ABC. Otherwise we simply get the positive child index.
-						current = atomicCompSwap(nodes[current].link[0], 0, insertion);
-					else // the current plane intersects the triangle 
-					{
-						if ( current%4<3 ) // if the current plane is a shadow plane (wedge optimization is not relevant for the capping plane)
-							atomicMax(nodes[current].link[3], floatBitsToUint(wedgeAngle(nodes[current].plane, A, B, C)));	// update the wedge angle
-						// continue in the intersection child. If it equals 0, it is a leaf. Thus 0 is replaced by insertion, merging the shadow volume
-						// cast by ABC. Otherwise, we simply get the intersection child index
-						current = atomicCompSwap(nodes[current].link[1], 0, insertion);						
+					//root=3;
+					// compute the triangle position wrt the current plane
+					const int pos = trianglePosition(A, B, C, nodes[current].plane);
+
+					if(pos<0){ // the triangle is fully in the negative halfspace, compute the negative index
+							if (current%4==3) current=0; // if the negative child is a leaf, the triangle is inside a shadow volume. This is an early termination case without merging the shadow volume.
+							else ++current;	// otherwise, continue in the negative child
 					}
-			}
+					else
+							if(pos>0) // the triangle is fully in the positive halfspace
+									// if link[0] equals 0, the positive child is a leaf. Thus 0 is replaced by insertion, merging the shadow volume
+									// cast by ABC. Otherwise we simply get the positive child index.
+									current = atomicCompSwap(nodes[current].link[0], 0, insertion);
+
+							else // the current plane intersects the triangle
+							{
+								if ( current%4<3 ) // if the current plane is a shadow plane (wedge optimization is not relevant for the capping plane)
+											atomicMax(nodes[current].link[3], floatBitsToUint(wedgeAngle(nodes[current].plane, A, B, C)));	// update the wedge angle
+									// continue in the intersection child. If it equals 0, it is a leaf. Thus 0 is replaced by insertion, merging the shadow volume
+									// cast by ABC. Otherwise, we simply get the intersection child index
+									current = atomicCompSwap(nodes[current].link[1], 0, insertion);
+
+							}
+				}
 		}
 
 }
@@ -276,38 +279,40 @@ void TOPTREE_mergeShadowVolumeCastByTriangle( in uint i ){
   many threads as triangles. Thread i merge triangle i. Thus it must be used in combination
   with a glDispatchCompute( ceil(getTriangleNumber() / 512.0), 1, 1)
 */
-void main_EG2015(void)	
+void main_EG2015(void)
 {
-	const uint size = getTriangleNumber();
-	const uint i = gl_GlobalInvocationID.x;
-	
-	if ( i<size )
-		// merge triangle i in the TOP tree
-		 TOPTREE_mergeShadowVolumeCastByTriangle(i);
+		const uint size = getTriangleNumber();
+		const uint i = gl_GlobalInvocationID.x;
+
+		if ( i<size ){
+
+				TOPTREE_mergeShadowVolumeCastByTriangle(i);
+		}
+			// merge triangle i in the TOP tree
 }
 
 /*
   Very rough persistant style variation. A thread merges triangles as long as triangles remain.
   We use a glDispatchCompute(32,1,1) with this one. Difference in speed wrt main_EG2015 is not
-  significant, but it is a little more convenient since the dispatch does not depend on the number of triangles 
+  significant, but it is a little more convenient since the dispatch does not depend on the number of triangles
 */
-void main_persistant(void)	
+void main_persistant(void)
 {
-    //Position_worldspace = (M * vec4(vertexPosition_modelspace,1)).xyz;
-  uint size = getTriangleNumber();
-	uint k;
-	for(k=0;k<size;k++)
-	{
-		// get the index of the triangle to merge in the TOP tree
-		uint i = atomicAdd(index.triangle, 1);
-		if (i>=size) break; // no triangle left
-		// merge triangle i in the TOP tree
-		TOPTREE_mergeShadowVolumeCastByTriangle(i);
-	}
+	    //Position_worldspace = (M * vec4(vertexPosition_modelspace,1)).xyz;
+	  uint size = getTriangleNumber();
+		uint k;
+		for(k=0;k<size;k++)
+		{
+				// get the index of the triangle to merge in the TOP tree
+				uint i = atomicAdd(index.triangle, 1);
+				if (i>=size) break; // no triangle left
+				// merge triangle i in the TOP tree
+				TOPTREE_mergeShadowVolumeCastByTriangle(i);
+		}
 }
 
 void main()
 {
-	main_EG2015();
-	//main_persistant();
+		//main_EG2015();
+		main_persistant();
 }

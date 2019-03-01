@@ -65,45 +65,13 @@ CMAKE_SOURCE_DIR = /home/luisernesto/Documents/MCSII/ComputerGraphics/Partitione
 CMAKE_BINARY_DIR = /home/luisernesto/Documents/MCSII/ComputerGraphics/PartitionedShadowVolume/build
 
 #=============================================================================
-# Target rules for target CMakeFiles/OpenGLExtensionGenerator.dir
-
-# All Build rule for target.
-CMakeFiles/OpenGLExtensionGenerator.dir/all:
-	$(MAKE) -f CMakeFiles/OpenGLExtensionGenerator.dir/build.make CMakeFiles/OpenGLExtensionGenerator.dir/depend
-	$(MAKE) -f CMakeFiles/OpenGLExtensionGenerator.dir/build.make CMakeFiles/OpenGLExtensionGenerator.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/luisernesto/Documents/MCSII/ComputerGraphics/PartitionedShadowVolume/build/CMakeFiles --progress-num=1 "Built target OpenGLExtensionGenerator"
-.PHONY : CMakeFiles/OpenGLExtensionGenerator.dir/all
-
-# Build rule for subdir invocation for target.
-CMakeFiles/OpenGLExtensionGenerator.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/luisernesto/Documents/MCSII/ComputerGraphics/PartitionedShadowVolume/build/CMakeFiles 1
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/OpenGLExtensionGenerator.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/luisernesto/Documents/MCSII/ComputerGraphics/PartitionedShadowVolume/build/CMakeFiles 0
-.PHONY : CMakeFiles/OpenGLExtensionGenerator.dir/rule
-
-# Convenience name for target.
-OpenGLExtensionGenerator: CMakeFiles/OpenGLExtensionGenerator.dir/rule
-
-.PHONY : OpenGLExtensionGenerator
-
-# clean rule for target.
-CMakeFiles/OpenGLExtensionGenerator.dir/clean:
-	$(MAKE) -f CMakeFiles/OpenGLExtensionGenerator.dir/build.make CMakeFiles/OpenGLExtensionGenerator.dir/clean
-.PHONY : CMakeFiles/OpenGLExtensionGenerator.dir/clean
-
-# clean rule for target.
-clean: CMakeFiles/OpenGLExtensionGenerator.dir/clean
-
-.PHONY : clean
-
-#=============================================================================
 # Target rules for target CMakeFiles/psv.dir
 
 # All Build rule for target.
-CMakeFiles/psv.dir/all: CMakeFiles/OpenGLExtensionGenerator.dir/all
+CMakeFiles/psv.dir/all:
 	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/depend
 	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/luisernesto/Documents/MCSII/ComputerGraphics/PartitionedShadowVolume/build/CMakeFiles --progress-num=2,3,4,5,6,7,8,9,10,11,12,13 "Built target psv"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/luisernesto/Documents/MCSII/ComputerGraphics/PartitionedShadowVolume/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12 "Built target psv"
 .PHONY : CMakeFiles/psv.dir/all
 
 # Include target in all.
@@ -113,7 +81,7 @@ all: CMakeFiles/psv.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/psv.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/luisernesto/Documents/MCSII/ComputerGraphics/PartitionedShadowVolume/build/CMakeFiles 13
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/luisernesto/Documents/MCSII/ComputerGraphics/PartitionedShadowVolume/build/CMakeFiles 12
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/psv.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/luisernesto/Documents/MCSII/ComputerGraphics/PartitionedShadowVolume/build/CMakeFiles 0
 .PHONY : CMakeFiles/psv.dir/rule

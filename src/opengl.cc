@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "opengl.h"
+#include "headers/opengl.h"
 
 /* ========================================================================== */
 
@@ -105,31 +105,31 @@ const char* GetErrorString(GLenum err) {
   {
     case GL_NO_ERROR:
       return STRINGIFY(GL_NO_ERROR);
-      
+
     case GL_INVALID_ENUM:
       return STRINGIFY(GL_INVALID_ENUM);
-      
+
     case GL_INVALID_VALUE:
       return STRINGIFY(GL_INVALID_VALUE);
-      
+
     case GL_INVALID_OPERATION:
       return STRINGIFY(GL_INVALID_OPERATION);
-      
+
     case GL_STACK_OVERFLOW:
       return STRINGIFY(GL_STACK_OVERFLOW);
-      
+
     case GL_STACK_UNDERFLOW:
       return STRINGIFY(GL_STACK_UNDERFLOW);
-      
+
     case GL_OUT_OF_MEMORY:
       return STRINGIFY(GL_OUT_OF_MEMORY);
-      
-      
+
+
     default:
       return "GetErrorString : Unknown constant";
   }
 #undef STRINGIFY
-    
+
   return "";
 }
 
