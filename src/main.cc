@@ -78,15 +78,15 @@ int main(int argc, char * argv[]) {
     obj3D->buildBuffers();
     obj3Dp->buildBuffers();
 
-	  obj3D->setShaders("../shaders/vs_mapscreen.glsl","../shaders/fs_psv.glsl");
-		obj3Dp->setShaders("../shaders/vs_mapscreen.glsl","../shaders/fs_psv.glsl");
+	  obj3D->setShaders("../shaders/VS_interpolation.glsl","../shaders/FS_queryPoint.glsl");
+		obj3Dp->setShaders("../shaders/VS_interpolation.glsl","../shaders/FS_queryPoint.glsl");
 
     objects.push_back(obj3D);
     objects.push_back(obj3Dp);
 
     app * a = new app(objects,sizeTriangle);
     a->getTriangles();
-    a->setShadersBuild("../shaders/cs_simple.glsl");
+    a->setShadersBuild("../shaders/CS_buildingTopTree.glsl");
 
     typedef std::chrono::high_resolution_clock Time;
     typedef std::chrono::duration<float> fsec;
@@ -96,6 +96,7 @@ int main(int argc, char * argv[]) {
     a->buildingTOPtree();
 
     bool flag = false;
+    std::cout << "===================================\n";
   	do{
   		/* Update and render one frame */
   		//AppFrame();
@@ -112,6 +113,7 @@ int main(int argc, char * argv[]) {
           std::cout << "time Building TOPTREE: " << elapsed_secondsB.count() * 1000.0 << " milliseconds" << std::endl;
           flag = true;
       }
+      
       auto startR = Time::now();
       a->rendering();
       auto endR = Time::now();
@@ -121,7 +123,7 @@ int main(int argc, char * argv[]) {
           std::cout << "time Rendering: " << elapsed_secondsR.count() * 1000.0  << " milliseconds" << std::endl;
 
       flag = false;
-      
+
   		/* Swap front & back buffers */
   		glfwSwapBuffers(window);
 

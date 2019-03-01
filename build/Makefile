@@ -312,33 +312,6 @@ src/app.cc.s:
 	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/app.cc.s
 .PHONY : src/app.cc.s
 
-src/gBuffer.o: src/gBuffer.cc.o
-
-.PHONY : src/gBuffer.o
-
-# target to build an object file
-src/gBuffer.cc.o:
-	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/gBuffer.cc.o
-.PHONY : src/gBuffer.cc.o
-
-src/gBuffer.i: src/gBuffer.cc.i
-
-.PHONY : src/gBuffer.i
-
-# target to preprocess a source file
-src/gBuffer.cc.i:
-	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/gBuffer.cc.i
-.PHONY : src/gBuffer.cc.i
-
-src/gBuffer.s: src/gBuffer.cc.s
-
-.PHONY : src/gBuffer.s
-
-# target to generate assembly for a file
-src/gBuffer.cc.s:
-	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/gBuffer.cc.s
-.PHONY : src/gBuffer.cc.s
-
 src/main.o: src/main.cc.o
 
 .PHONY : src/main.o
@@ -450,9 +423,6 @@ help:
 	@echo "... src/app.o"
 	@echo "... src/app.i"
 	@echo "... src/app.s"
-	@echo "... src/gBuffer.o"
-	@echo "... src/gBuffer.i"
-	@echo "... src/gBuffer.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

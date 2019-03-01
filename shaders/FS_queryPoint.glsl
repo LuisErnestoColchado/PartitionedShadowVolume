@@ -154,17 +154,13 @@ out vec3 color;
 void main()
 {
 		bool isGenerator = true;
-		//if(UV != 0)
-		//vec3 MaterialDiffuseColor = texture(myTextureSampler, UV).rgb;
-		//else
+
 		vec3 MaterialDiffuseColor = matColor;
 		if(matColor.x == 0.2 &&
 			 matColor.y == 0.2 &&
 			 matColor.z == 0.2){
 			 isGenerator = false;
-			 //MaterialDiffuseColor = vec3(0.2,0.2,0.2);
 		}
-		//isGenerator = false;
 
 		vec3 MaterialAmbientColor = vec3(0.1,0.1,0.1) * MaterialDiffuseColor;
 		vec3 MaterialSpecularColor = vec3(1.0,1.0,1.0);
@@ -210,6 +206,5 @@ void main()
 						color = vec3(0);
 				}
 	}
-	else
-			color = vec3(1);
+
 }

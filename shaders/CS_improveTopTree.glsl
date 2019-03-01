@@ -298,7 +298,6 @@ void main_EG2015(void)
 */
 void main_persistant(void)
 {
-	    //Position_worldspace = (M * vec4(vertexPosition_modelspace,1)).xyz;
 	  uint size = getTriangleNumber();
 		uint k;
 		for(k=0;k<size;k++)

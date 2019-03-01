@@ -82,7 +82,7 @@ void app::buildingTOPtree(){
 
     glUseProgram(programBuild);
     glUniform3f(lightID, lightPos.x, lightPos.y, lightPos.z);
-    glDispatchCompute( ceil(sizeTriangles / 36.0), 1, 1);
+    glDispatchCompute( ceil(sizeTriangles / 512.0), 1, 1);
     glMemoryBarrier( GL_SHADER_STORAGE_BARRIER_BIT );
 
    /*
@@ -192,6 +192,4 @@ void app::cleanBuffers(){
     GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
     memcpy(p, &root, sizeof(root));
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-
-
 }
