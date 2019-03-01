@@ -56,17 +56,6 @@ CMAKE_BINARY_DIR = /home/luisernesto/Documents/MCSII/ComputerGraphics/Partitione
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/usr/local/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
-
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -77,6 +66,17 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
+	/usr/local/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -111,19 +111,6 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named OpenGLExtensionGenerator
-
-# Build rule for target.
-OpenGLExtensionGenerator: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 OpenGLExtensionGenerator
-.PHONY : OpenGLExtensionGenerator
-
-# fast build rule for target.
-OpenGLExtensionGenerator/fast:
-	$(MAKE) -f CMakeFiles/OpenGLExtensionGenerator.dir/build.make CMakeFiles/OpenGLExtensionGenerator.dir/build
-.PHONY : OpenGLExtensionGenerator/fast
-
-#=============================================================================
 # Target rules for targets named psv
 
 # Build rule for target.
@@ -135,33 +122,6 @@ psv: cmake_check_build_system
 psv/fast:
 	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/build
 .PHONY : psv/fast
-
-ObjLoader/tiny_obj_loader.o: ObjLoader/tiny_obj_loader.cc.o
-
-.PHONY : ObjLoader/tiny_obj_loader.o
-
-# target to build an object file
-ObjLoader/tiny_obj_loader.cc.o:
-	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/ObjLoader/tiny_obj_loader.cc.o
-.PHONY : ObjLoader/tiny_obj_loader.cc.o
-
-ObjLoader/tiny_obj_loader.i: ObjLoader/tiny_obj_loader.cc.i
-
-.PHONY : ObjLoader/tiny_obj_loader.i
-
-# target to preprocess a source file
-ObjLoader/tiny_obj_loader.cc.i:
-	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/ObjLoader/tiny_obj_loader.cc.i
-.PHONY : ObjLoader/tiny_obj_loader.cc.i
-
-ObjLoader/tiny_obj_loader.s: ObjLoader/tiny_obj_loader.cc.s
-
-.PHONY : ObjLoader/tiny_obj_loader.s
-
-# target to generate assembly for a file
-ObjLoader/tiny_obj_loader.cc.s:
-	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/ObjLoader/tiny_obj_loader.cc.s
-.PHONY : ObjLoader/tiny_obj_loader.cc.s
 
 common/controls.o: common/controls.cc.o
 
@@ -298,32 +258,32 @@ common/vboindexer.cc.s:
 	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/common/vboindexer.cc.s
 .PHONY : common/vboindexer.cc.s
 
-src/Object.o: src/Object.cc.o
+objLoader/tiny_obj_loader.o: objLoader/tiny_obj_loader.cc.o
 
-.PHONY : src/Object.o
+.PHONY : objLoader/tiny_obj_loader.o
 
 # target to build an object file
-src/Object.cc.o:
-	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/Object.cc.o
-.PHONY : src/Object.cc.o
+objLoader/tiny_obj_loader.cc.o:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/objLoader/tiny_obj_loader.cc.o
+.PHONY : objLoader/tiny_obj_loader.cc.o
 
-src/Object.i: src/Object.cc.i
+objLoader/tiny_obj_loader.i: objLoader/tiny_obj_loader.cc.i
 
-.PHONY : src/Object.i
+.PHONY : objLoader/tiny_obj_loader.i
 
 # target to preprocess a source file
-src/Object.cc.i:
-	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/Object.cc.i
-.PHONY : src/Object.cc.i
+objLoader/tiny_obj_loader.cc.i:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/objLoader/tiny_obj_loader.cc.i
+.PHONY : objLoader/tiny_obj_loader.cc.i
 
-src/Object.s: src/Object.cc.s
+objLoader/tiny_obj_loader.s: objLoader/tiny_obj_loader.cc.s
 
-.PHONY : src/Object.s
+.PHONY : objLoader/tiny_obj_loader.s
 
 # target to generate assembly for a file
-src/Object.cc.s:
-	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/Object.cc.s
-.PHONY : src/Object.cc.s
+objLoader/tiny_obj_loader.cc.s:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/objLoader/tiny_obj_loader.cc.s
+.PHONY : objLoader/tiny_obj_loader.cc.s
 
 src/app.o: src/app.cc.o
 
@@ -352,6 +312,33 @@ src/app.cc.s:
 	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/app.cc.s
 .PHONY : src/app.cc.s
 
+src/gBuffer.o: src/gBuffer.cc.o
+
+.PHONY : src/gBuffer.o
+
+# target to build an object file
+src/gBuffer.cc.o:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/gBuffer.cc.o
+.PHONY : src/gBuffer.cc.o
+
+src/gBuffer.i: src/gBuffer.cc.i
+
+.PHONY : src/gBuffer.i
+
+# target to preprocess a source file
+src/gBuffer.cc.i:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/gBuffer.cc.i
+.PHONY : src/gBuffer.cc.i
+
+src/gBuffer.s: src/gBuffer.cc.s
+
+.PHONY : src/gBuffer.s
+
+# target to generate assembly for a file
+src/gBuffer.cc.s:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/gBuffer.cc.s
+.PHONY : src/gBuffer.cc.s
+
 src/main.o: src/main.cc.o
 
 .PHONY : src/main.o
@@ -379,32 +366,32 @@ src/main.cc.s:
 	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/main.cc.s
 .PHONY : src/main.cc.s
 
-src/objectNoShadow.o: src/objectNoShadow.cc.o
+src/object.o: src/object.cc.o
 
-.PHONY : src/objectNoShadow.o
+.PHONY : src/object.o
 
 # target to build an object file
-src/objectNoShadow.cc.o:
-	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/objectNoShadow.cc.o
-.PHONY : src/objectNoShadow.cc.o
+src/object.cc.o:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/object.cc.o
+.PHONY : src/object.cc.o
 
-src/objectNoShadow.i: src/objectNoShadow.cc.i
+src/object.i: src/object.cc.i
 
-.PHONY : src/objectNoShadow.i
+.PHONY : src/object.i
 
 # target to preprocess a source file
-src/objectNoShadow.cc.i:
-	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/objectNoShadow.cc.i
-.PHONY : src/objectNoShadow.cc.i
+src/object.cc.i:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/object.cc.i
+.PHONY : src/object.cc.i
 
-src/objectNoShadow.s: src/objectNoShadow.cc.s
+src/object.s: src/object.cc.s
 
-.PHONY : src/objectNoShadow.s
+.PHONY : src/object.s
 
 # target to generate assembly for a file
-src/objectNoShadow.cc.s:
-	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/objectNoShadow.cc.s
-.PHONY : src/objectNoShadow.cc.s
+src/object.cc.s:
+	$(MAKE) -f CMakeFiles/psv.dir/build.make CMakeFiles/psv.dir/src/object.cc.s
+.PHONY : src/object.cc.s
 
 src/opengl.o: src/opengl.cc.o
 
@@ -439,13 +426,9 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... OpenGLExtensionGenerator"
+	@echo "... edit_cache"
 	@echo "... psv"
-	@echo "... ObjLoader/tiny_obj_loader.o"
-	@echo "... ObjLoader/tiny_obj_loader.i"
-	@echo "... ObjLoader/tiny_obj_loader.s"
 	@echo "... common/controls.o"
 	@echo "... common/controls.i"
 	@echo "... common/controls.s"
@@ -461,18 +444,21 @@ help:
 	@echo "... common/vboindexer.o"
 	@echo "... common/vboindexer.i"
 	@echo "... common/vboindexer.s"
-	@echo "... src/Object.o"
-	@echo "... src/Object.i"
-	@echo "... src/Object.s"
+	@echo "... objLoader/tiny_obj_loader.o"
+	@echo "... objLoader/tiny_obj_loader.i"
+	@echo "... objLoader/tiny_obj_loader.s"
 	@echo "... src/app.o"
 	@echo "... src/app.i"
 	@echo "... src/app.s"
+	@echo "... src/gBuffer.o"
+	@echo "... src/gBuffer.i"
+	@echo "... src/gBuffer.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
-	@echo "... src/objectNoShadow.o"
-	@echo "... src/objectNoShadow.i"
-	@echo "... src/objectNoShadow.s"
+	@echo "... src/object.o"
+	@echo "... src/object.i"
+	@echo "... src/object.s"
 	@echo "... src/opengl.o"
 	@echo "... src/opengl.i"
 	@echo "... src/opengl.s"

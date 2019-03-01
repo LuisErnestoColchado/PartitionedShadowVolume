@@ -1,188 +1,197 @@
-#include <assert.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <GL/glew.h>
-#include "app.h"
-#include "opengl.h"
+#include "headers/app.h"
+#include <new>
+#include <new>
+app::app(std::vector<object*> objs,
+        int sizeTriangles){
 
-/* ========================================================================== */
+    this->objects = objs;
+    this->sizeTriangles = sizeTriangles;
 
-#define SHADERS_DIR     "../shaders/"
-#define MAX_BUFFERSIZE  2048
+    this->lightPos = glm::vec4(0,15,5,0);
+    this->colores[0] = glm::vec3(0.7,0.7,0.7);
+    this->colores[1] = glm::vec3(0.2,0.2,0.2);
 
-typedef struct {
-  GLuint computePgm;
-  GLuint renderPgm;
-  GLuint vao;
-  GLuint texture;
-  unsigned int tick;
-} TGlobal;
+    this->sizeNodes = (sizeTriangles * 4) + 1 ;
 
-static TGlobal s_Global;
-
-/* ========================================================================== */
-
-static
-int ReadFile(const char* filename, const unsigned int maxsize, char out[]) {
-  FILE* fd = 0;
-  size_t nelems = 0;
-  size_t nreads = 0;
-
-  if (!(fd = fopen(filename, "r"))) {
-    fprintf(stderr, "warning: \"%s\" not found.\n", filename);
-    return 0;
-  }
-
-  memset(out, 0, maxsize);
-
-  fseek(fd, 0, SEEK_END);
-  nelems = ftell(fd);
-  nelems = (nelems > maxsize) ? maxsize : nelems;
-  fseek(fd, 0, SEEK_SET);
-
-  nreads = fread(out, sizeof(char), nelems, fd);
-
-  fclose(fd);
-
-  return nreads == nelems;
+    /*  Dynamic arrays __Errors__*/
+    //this->triangles = (triangle*)malloc(this->sizeTriangles*sizeof(triangle));
+    //this->nodes = (node*)malloc(this->sizeNodes*sizeof(node));
+    //this->triangles = new (std::nothrow) triangle[sizeTriangles];
+    //this->nodes = new (std::nothrow) node[sizeNodes];
+    //trianglesc = new triangle[sizeTriangles];
 }
 
-static
-GLuint setupComputeProgram(char *src_buffer) {
-  GLuint pgm = 0u;
+void app::getTriangles(){
 
-  ReadFile(SHADERS_DIR "cs_simple.glsl", MAX_BUFFERSIZE, src_buffer);
-  pgm = glCreateShaderProgramv(GL_COMPUTE_SHADER, 1, (const char**)&src_buffer);
+    glGenBuffers(1, &trianglesBuffer);
+    glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 7, trianglesBuffer);
+    GLint bufMask = GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT;
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeTriangles *  sizeof(triangle), &triangles[0], GL_DYNAMIC_COPY);
+    glUnmapBuffer( GL_SHADER_STORAGE_BUFFER);
 
-  CheckProgramStatus(pgm);
+    int count = 0;
+    for (auto obj : objects){
+        for(int i = 0;i < obj->vertices.size();i+=3){
+            if(obj->generateShadow == true){
+                triangle tri;
+                tri.a = obj->vertices[i];
+                tri.b = obj->vertices[i+1];
+                tri.c = obj->vertices[i+2];
+                triangles[count] = tri;
+                count+=1;
+            }
+        }
+    }
 
-  return pgm;
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, trianglesBuffer);
+    GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+    memcpy(p, &triangles, sizeTriangles * sizeof(triangle));
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
 }
 
-static
-GLuint setupRenderProgram(char *src_buffer) {
-  GLuint pgm = 0u;
-  GLuint vshader = 0u;
-  GLuint fshader = 0u;
-
-  /* Vertex Shader */
-  vshader = glCreateShader(GL_VERTEX_SHADER);
-  ReadFile(SHADERS_DIR "vs_mapscreen.glsl", MAX_BUFFERSIZE, src_buffer);
-  glShaderSource(vshader, 1, (const char**)&src_buffer, (const GLint*)0);
-  glCompileShader(vshader);
-  CheckShaderStatus(vshader);
-
-  /* Fragment Shader */
-  fshader = glCreateShader(GL_FRAGMENT_SHADER);
-  ReadFile(SHADERS_DIR "fs_mapscreen.glsl", MAX_BUFFERSIZE, src_buffer);
-  glShaderSource(fshader, 1, (const char**)&src_buffer, (const GLint*)0);
-  glCompileShader(fshader);
-  CheckShaderStatus(fshader);
-
-  pgm = glCreateProgram();
-  glAttachShader(pgm, vshader); glDeleteShader(vshader);
-  glAttachShader(pgm, fshader); glDeleteShader(fshader);
-  glLinkProgram(pgm);
-  CheckProgramStatus(pgm);
-
-  return pgm;
+void app::setShadersBuild(const char * sFile){
+    programBuild = LoadShadersBuild(sFile);
+    lightID = glGetUniformLocation(programBuild, "LightPosition_worldspace");
 }
 
-static
-GLuint setupTexture() {
-  GLuint tex = 0;
+void app::buildingTOPtree(){
 
-  const unsigned int w = 512u;
-  const unsigned int h = 512u;
+    variable.node = 0;
+    variable.triangle = 0;
+    glGenBuffers(1, &TOPTREE);
+    glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 13, TOPTREE);
+    glBufferData(GL_SHADER_STORAGE_BUFFER,sizeNodes * sizeof(node), &nodes[0], GL_DYNAMIC_COPY);
+    glUnmapBuffer( GL_SHADER_STORAGE_BUFFER );
 
-  glGenTextures(1, &tex);
-  glBindTexture(GL_TEXTURE_2D, tex);
+    glGenBuffers(1, &rootGL);
+    glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 29, rootGL);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(root), &root, GL_DYNAMIC_COPY);
+    glUnmapBuffer( GL_SHADER_STORAGE_BUFFER );
 
-  /* ComputeShader need to use immutable image space */
-  glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, w, h);
+    glGenBuffers(1, &utilGL);
+    glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 30, utilGL);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(util), &variable, GL_DYNAMIC_COPY);
+    glUnmapBuffer( GL_SHADER_STORAGE_BUFFER );
 
-  glClearTexImage(tex, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glm::mat4 lrot = glm::rotate(glm::mat4(1.0),0.0f,glm::vec3(0,1,0));
+    lightPos =  lrot * lightPos;
+    int factor = 1;
+    lightPos.x += 0.01*factor;
+    lightPos.y += 0.01*factor;
 
-  CHECKGLERROR();
+    glUseProgram(programBuild);
+    glUniform3f(lightID, lightPos.x, lightPos.y, lightPos.z);
+    glDispatchCompute( ceil(sizeTriangles / 36.0), 1, 1);
+    glMemoryBarrier( GL_SHADER_STORAGE_BARRIER_BIT );
 
-  return tex;
+   /*
+    * For debug
+    *
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, trianglesBuffer);
+    GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+    memcpy(&trianglesc,p, sizeTriangles * sizeof(triangle));
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+    std::cout << "triangle p2 " << trianglesc[2].a[2] << std::endl;*/
+
+    /*glBindBuffer(GL_SHADER_STORAGE_BUFFER, rootGL);
+    GLvoid* r = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+    memcpy(&root,r, sizeof(root));
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+    std::cout << "root " << root << std::endl;
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, TOPTREE);
+    GLvoid* t = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+    memcpy(&nodes,t, sizeNodes * sizeof(node));
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+    std::cout << "node " << nodes[2].plane[1] << std::endl;
+    *
+    *
+    */
 }
 
-static
-void launchCompute() {
-  glUseProgram(s_Global.computePgm);
+void app::rendering(){
 
-  glUniform1f(glGetUniformLocation(s_Global.computePgm, "uTime"), 
-              0.001f*s_Global.tick);
+    int count = 0;
+    glm::mat4 lrot = glm::rotate(glm::mat4(1.0),0.0f,glm::vec3(0,1,0));
+    lightPos =  lrot * lightPos;
+    for(auto object : objects){
+        glUseProgram(object->programRender);
 
-  glBindImageTexture(0, s_Global.texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8);
-  glDispatchCompute(32, 32, 1);
 
-  CHECKGLERROR();
+        glm::mat4 ProjectionMatrix = getProjectionMatrix();
+	      object->viewMatrix = getViewMatrix();
+	      object->MVP = ProjectionMatrix * object->viewMatrix * object->modelMatrix;
+
+        glUniformMatrix4fv(object->matrixID, 1, GL_FALSE, &(object->MVP[0][0]));
+        glUniformMatrix4fv(object->modelMatrixID, 1, GL_FALSE, &(object->modelMatrix[0][0]));
+        glUniformMatrix4fv(object->viewMatrixID, 1, GL_FALSE, &(object->viewMatrix[0][0]));
+
+        glUniform3f(object->lightID, lightPos.x, lightPos.y, lightPos.z);
+        glUniform3f(object->colorID,  colores[count].x, colores[count].y, colores[count].z);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, object->texture);
+
+        // Set our "myTextureSampler" sampler to use Texture Unit 0
+        glUniform1i(object->textureID, 0);
+
+        glEnableVertexAttribArray(0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, object->vertexBuffer);
+
+        glVertexAttribPointer(
+                0,                  // attribute
+                4,                  // size
+                GL_FLOAT,           // type
+                GL_FALSE,           // normalized?
+                0,                  // stride
+                (void*)0            // array buffer offset
+                );
+
+        // 2nd attribute buffer : UVs
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, object->uvBuffer);
+        glVertexAttribPointer(
+                1,                                // attribute
+                2,                                // size
+                GL_FLOAT,                         // type
+                GL_FALSE,                         // normalized?
+                0,                                // stride
+                (void*)0                          // array buffer offset
+                );
+
+        // 3rd attribute buffer : normals
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, object->normalBuffer);
+        glVertexAttribPointer(
+                2,                                // attribute
+                3,                                // size
+                GL_FLOAT,                         // type
+                GL_FALSE,                         // normalized?
+                0,                                // stride
+                (void*)0                          // array buffer offset
+                );
+
+        glBindBuffer (GL_SHADER_STORAGE_BUFFER, TOPTREE);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, rootGL);
+
+        // Draw the triangles !
+        glDrawArrays(GL_TRIANGLES, 0, object->vertices.size());
+
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(2);
+        count++;
+    }
 }
 
-static
-void renderScreen() {
-  glClear(GL_COLOR_BUFFER_BIT);
-
-  glUseProgram(s_Global.renderPgm);
-
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, s_Global.texture);
-
-  glBindVertexArray(s_Global.vao);
-  glDrawArrays(GL_TRIANGLES, 0, 3);
+void app::cleanBuffers(){
+    root = 0;
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, rootGL);
+    GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+    memcpy(p, &root, sizeof(root));
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
 
-  CHECKGLERROR();
 }
-
-static
-void AppFinalize() {
-  glDeleteProgram(s_Global.computePgm);
-  glDeleteProgram(s_Global.renderPgm);
-  glDeleteTextures(1, &s_Global.texture);
-  glDeleteVertexArrays(1, &s_Global.vao);
-
-  CHECKGLERROR();
-}
-
-/* ========================================================================== */
-
-extern
-GLuint AppSetup() {
-    char *src_buffer = NULL;
-
-    /* Initialize OpenGL extensions */
-    //InitGL();
-
-    /* setting some OpenGL properties */
-    //glClearColor( 0.25f, 0.25f, 0.25f, 1.0f);
-    //glDisable(GL_DEPTH_TEST);
-
-    /* Generate program shaders */
-    src_buffer = (char*)calloc(MAX_BUFFERSIZE, sizeof(char));
-
-    //OJO//s_Global.computePgm = setupComputeProgram(src_buffer);
-
-    s_Global.renderPgm  = setupRenderProgram(src_buffer);
-    
-    free(src_buffer);
-
-    return s_Global.renderPgm;
-}
-
-extern
-void AppFrame() {
-  /* Update the tick [todo : use frame control] */
-  ++s_Global.tick;
-
-  /* Update the texture via the kernel */
-  launchCompute();
-
-  /* Render texture to the screen */
-  renderScreen();
-}
-
-/* ========================================================================== */
