@@ -93,7 +93,7 @@ float TOPTREE_query( in vec3 p, in vec3 normal ){
 		stack[ stacksize++ ] = root; // push the root
 
 		// if we are back facing the light, querying the TOP tree is not necessary
-		//if ( dot( normal, -p) < 0.0 ) return 0.0;
+		if ( dot( normal, -p) + sqdist < 0.0 ) return 0.0;
 
 	 	// find the location of p...
 		while(stacksize>0){

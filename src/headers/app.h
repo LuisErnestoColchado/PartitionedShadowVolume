@@ -7,9 +7,8 @@
 //robot 171452
 //machine 134777
 //raptor 2000000
-#define SIZEOFTRIANGLE 2000000
+#define SIZEOFTRIANGLE 112596
 class app{
-
 public:
     app(std::vector<object*>,
         int);
@@ -48,7 +47,6 @@ public:
 
     //triangle * triangles;
     //node * nodes;
-
     GLuint TOPTREE;
     GLuint rootGL;
     GLuint utilGL;

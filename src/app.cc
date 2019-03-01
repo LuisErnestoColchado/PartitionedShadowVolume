@@ -11,15 +11,17 @@ app::app(std::vector<object*> objs,
     this->colores[0] = glm::vec3(0.7,0.7,0.7);
     this->colores[1] = glm::vec3(0.2,0.2,0.2);
 
-    sizeNodes = (sizeTriangles * 4) + 1 ;
-    /*  IF OTHER OBJS*/
+    this->sizeNodes = (sizeTriangles * 4) + 1 ;
+
+    /*  Dynamic arrays __Errors__*/
+    //this->triangles = (triangle*)malloc(this->sizeTriangles*sizeof(triangle));
+    //this->nodes = (node*)malloc(this->sizeNodes*sizeof(node));
     //this->triangles = new (std::nothrow) triangle[sizeTriangles];
     //this->nodes = new (std::nothrow) node[sizeNodes];
     //trianglesc = new triangle[sizeTriangles];
 }
 
 void app::getTriangles(){
-    std::cout << " get triangles 1 " << std::endl;
 
     glGenBuffers(1, &trianglesBuffer);
     glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 7, trianglesBuffer);
@@ -28,8 +30,6 @@ void app::getTriangles(){
     glUnmapBuffer( GL_SHADER_STORAGE_BUFFER);
 
     int count = 0;
-
-    std::cout << " get triangles 2 " << std::endl;
     for (auto obj : objects){
         for(int i = 0;i < obj->vertices.size();i+=3){
             if(obj->generateShadow == true){
@@ -53,12 +53,9 @@ void app::getTriangles(){
 void app::setShadersBuild(const char * sFile){
     programBuild = LoadShadersBuild(sFile);
     lightID = glGetUniformLocation(programBuild, "LightPosition_worldspace");
-
 }
 
 void app::buildingTOPtree(){
-      std::cout << "Starting the build of the TOP TREE" << std::endl;
-
 
     variable.node = 0;
     variable.triangle = 0;
@@ -78,31 +75,20 @@ void app::buildingTOPtree(){
     glUnmapBuffer( GL_SHADER_STORAGE_BUFFER );
 
     glm::mat4 lrot = glm::rotate(glm::mat4(1.0),0.0f,glm::vec3(0,1,0));
+    lightPos =  lrot * lightPos;
     int factor = 1;
-    lightPos.x += 0.0001*factor;
-
-  	//lightPos =  lrot * lightPos;
-
-    //change light
-  	//if(time % 200 == 0)
-    /*int factor = 0;
-    lightPos.x += 0.1*factor;
-    lightPos.y += 0.1*factor;
-    lightPos.z += 0.1*factor;
-    if(lightPos.x>7.0){
-  		factor=-1;
-  	}
-  	else if(lightPos.x<-7.0){
-  		factor=1;
-  	}*/
-
+    lightPos.x += 0.01*factor;
+    lightPos.y += 0.01*factor;
 
     glUseProgram(programBuild);
     glUniform3f(lightID, lightPos.x, lightPos.y, lightPos.z);
     glDispatchCompute( ceil(sizeTriangles / 36.0), 1, 1);
     glMemoryBarrier( GL_SHADER_STORAGE_BARRIER_BIT );
+
    /*
-glBindBuffer(GL_SHADER_STORAGE_BUFFER, trianglesBuffer);
+    * For debug
+    *
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, trianglesBuffer);
     GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
     memcpy(&trianglesc,p, sizeTriangles * sizeof(triangle));
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
@@ -118,32 +104,21 @@ glBindBuffer(GL_SHADER_STORAGE_BUFFER, trianglesBuffer);
     GLvoid* t = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
     memcpy(&nodes,t, sizeNodes * sizeof(node));
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-    std::cout << "node " << nodes[2].plane[1] << std::endl;*/
+    std::cout << "node " << nodes[2].plane[1] << std::endl;
+    *
+    *
+    */
 }
 
 void app::rendering(){
-    //std::cout << "Starting rendering" << std::endl;
-    int count = 0;
 
+    int count = 0;
+    glm::mat4 lrot = glm::rotate(glm::mat4(1.0),0.0f,glm::vec3(0,1,0));
+    lightPos =  lrot * lightPos;
     for(auto object : objects){
         glUseProgram(object->programRender);
-        glm::mat4 lrot = glm::rotate(glm::mat4(1.0),0.0f,glm::vec3(0,1,0));
-        //glScalef(-90000,-90000,-90000);
-        //glTranslatef(200,200,200);
-        //lightPos =  lrot * lightPos;
-        //change light
-        //if(time % 200 == 0)
-        //int factor = 1;
-        //lightPos.y += 0.1*factor;
 
-        /*if(lightPos.x>7.0){
-            factor=-1;
-        }
-        else if(lightPos.x<-7.0){
-            factor=1;
-        }*/
-        //int factor = 1;
-        //lightPos.x += 0.0001*factor;
+
         glm::mat4 ProjectionMatrix = getProjectionMatrix();
 	      object->viewMatrix = getViewMatrix();
 	      object->MVP = ProjectionMatrix * object->viewMatrix * object->modelMatrix;
@@ -174,7 +149,7 @@ void app::rendering(){
                 (void*)0            // array buffer offset
                 );
 
-         // 2nd attribute buffer : UVs
+        // 2nd attribute buffer : UVs
         glEnableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER, object->uvBuffer);
         glVertexAttribPointer(
@@ -202,7 +177,6 @@ void app::rendering(){
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, rootGL);
 
         // Draw the triangles !
-        //std::cout << " SIZE " << object->vertices.size() << std::endl;
         glDrawArrays(GL_TRIANGLES, 0, object->vertices.size());
 
         glDisableVertexAttribArray(0);

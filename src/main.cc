@@ -70,39 +70,33 @@ int main(int argc, char * argv[]) {
     const char * textureFilePlata = "../data/cueva.bmp";
 		int sizeTriangle = 0;
 
-    object* obj3D = new object(raptorFile,1.0,true,sizeTriangle,textureFileRaptor);
+    object* obj3D = new object(rexFile,1.0,true,sizeTriangle,textureFileRaptor);
     std::cout << "size triangles " <<  sizeTriangle << std::endl;
-		//obj3D->modelMatrix = glm::rotate(obj3D->modelMatrix,glm::radians(-90.0f),glm::vec3(1.0f,0.0f,0.0f));
-		//RAPTOR
-    //obj3D->modelMatrix = glm::rotate(obj3D->modelMatrix,glm::radians(-30.0f),glm::vec3(0.0f,1.0f,0.0f));
-    //obj3D->modelMatrix = glm::translate(obj3D->modelMatrix,glm::vec3(0.2f,0.19f,-2.2f));
-    //obj3D->modelMatrix = glm::translate(obj3D->modelMatrix,glm::vec3(0.0f,0.0f,10.0f));
+
     object* obj3Dp = new object(plataformFile,1.0,false,sizeTriangle,textureFilePlata);
-    //obj3Dp->modelMatrix = glm::translate(obj3D->modelMatrix,glm::vec3(0.0f,-0.1f,2.7f));
 
     obj3D->buildBuffers();
     obj3Dp->buildBuffers();
+
 	  obj3D->setShaders("../shaders/vs_mapscreen.glsl","../shaders/fs_psv.glsl");
 		obj3Dp->setShaders("../shaders/vs_mapscreen.glsl","../shaders/fs_psv.glsl");
+
     objects.push_back(obj3D);
     objects.push_back(obj3Dp);
-
 
     app * a = new app(objects,sizeTriangle);
     a->getTriangles();
     a->setShadersBuild("../shaders/cs_simple.glsl");
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    start = std::chrono::system_clock::now();
-    a->buildingTOPtree();
-    end = std::chrono::system_clock::now();
-    int elapsed_seconds = std::chrono::duration_cast<std::chrono::milliseconds>
-                             (end-start).count();
-    std::cout << "time " << elapsed_seconds << std::endl;
+
+    typedef std::chrono::high_resolution_clock Time;
+    typedef std::chrono::duration<float> fsec;
+
     int countFrame = 0;
-    //a->setShadersRender();
+
+    a->buildingTOPtree();
+
+    bool flag = false;
   	do{
-      std::chrono::time_point<std::chrono::system_clock> start, end;
-      start = std::chrono::system_clock::now();
   		/* Update and render one frame */
   		//AppFrame();
   		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -110,20 +104,30 @@ int main(int argc, char * argv[]) {
   		// Compute the MVP matrix from keyboard and mouse input
   		computeMatricesFromInputs();
 
-      if (glfwGetKey(window, GLFW_KEY_ENTER ) == GLFW_PRESS)
+      if (glfwGetKey(window, GLFW_KEY_ENTER ) == GLFW_PRESS){
+          auto startB = Time::now();
           a->buildingTOPtree();
-
+          auto endB = Time::now();
+          fsec elapsed_secondsB = endB - startB;
+          std::cout << "time Building TOPTREE: " << elapsed_secondsB.count() * 1000.0 << " milliseconds" << std::endl;
+          flag = true;
+      }
+      auto startR = Time::now();
       a->rendering();
-      //a->cleanBuffers();
+      auto endR = Time::now();
+      fsec elapsed_secondsR = endR - startR;
+
+      if(flag)
+          std::cout << "time Rendering: " << elapsed_secondsR.count() * 1000.0  << " milliseconds" << std::endl;
+
+      flag = false;
+      
   		/* Swap front & back buffers */
   		glfwSwapBuffers(window);
 
   		/* Manage events */
   		glfwPollEvents();
-      end = std::chrono::system_clock::now();
-      elapsed_seconds = std::chrono::duration_cast<std::chrono::milliseconds>
-                               (end-start).count();
-      std::cout << "time F" << elapsed_seconds << std::endl;
+
       countFrame++;
     }while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
   			glfwWindowShouldClose(window) == 0 );

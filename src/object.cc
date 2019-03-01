@@ -12,10 +12,7 @@ object::object(const char* filename,
     load_scale = scale;
     modelMatrix = glm::mat4(1);
     generateShadow = gShadow;
-
     texture = loadBMP_custom(textureFile);
-
-
     loadMesh(NULL,true,sizeTriangles);
 }
 
@@ -25,9 +22,8 @@ object::~object(){
 
 void object::setShaders(const char * vFile,
                         const char * fFile){
-    programRender = LoadShaders( vFile, fFile);
 
-  	// Get a handle for our "MVP" uniform
+    programRender = LoadShaders( vFile, fFile);
   	matrixID = glGetUniformLocation(programRender, "MVP");
   	viewMatrixID = glGetUniformLocation(programRender, "V");
   	modelMatrixID = glGetUniformLocation(programRender, "M");
@@ -117,7 +113,7 @@ bool object::loadMesh(const char* basepath,
           count++;
       }
     }
-    std::cout << meshFilename << " " << text.size() << std::endl;
+
     if(generateShadow == true)
         sizeTriangles += vertices.size() / 3;
 

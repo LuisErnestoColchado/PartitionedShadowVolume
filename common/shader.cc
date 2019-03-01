@@ -108,7 +108,6 @@ GLuint LoadShadersBuild(const char * compute_file_path){
 
 	// Create the shaders
 	GLuint ComputeShaderID = glCreateShader(GL_COMPUTE_SHADER);
-	std::cout << "step compute 1" << std::endl;
 	// Read the Vertex Shader code from the file
 	std::string ComputerShaderCode;
 	std::ifstream ComputeShaderStream(compute_file_path, std::ios::in);
@@ -128,11 +127,10 @@ GLuint LoadShadersBuild(const char * compute_file_path){
 	glShaderSource(ComputeShaderID, 1, &FragmentSourcePointer , NULL);
 	glCompileShader(ComputeShaderID);
 
-	std::cout << "step compute 2" << std::endl;
 	GLuint ComputeShaderProgID = glCreateShaderProgramv(GL_COMPUTE_SHADER, 1, (const char**)&ComputerShaderCode);
 	GLint Result = GL_FALSE;
 	int InfoLogLength;
-	std::cout << "step compute 3" << std::endl;
+
 	glAttachShader(ComputeShaderProgID, ComputeShaderID);
 	glLinkProgram(ComputeShaderProgID);
 	// Check the program
@@ -146,7 +144,7 @@ GLuint LoadShadersBuild(const char * compute_file_path){
 	glDetachShader(ComputeShaderProgID, ComputeShaderID);
 
 	glDeleteShader(ComputeShaderID);
-	std::cout << "step compute 4" << std::endl;
+
 	glCompileShader(ComputeShaderProgID);
 	return ComputeShaderProgID;
 }
@@ -155,7 +153,6 @@ GLuint LoadShadersRender2(const char * fragment_file_path){
 
 	// Create the shaders
 	GLuint FragmentID = glCreateShader(GL_FRAGMENT_SHADER);
-	std::cout << "step compute 1" << std::endl;
 	// Read the Vertex Shader code from the file
 	std::string ComputerShaderCode;
 	std::ifstream ComputeShaderStream(fragment_file_path, std::ios::in);
@@ -175,11 +172,10 @@ GLuint LoadShadersRender2(const char * fragment_file_path){
 	glShaderSource(FragmentID, 1, &FragmentSourcePointer , NULL);
 	glCompileShader(FragmentID);
 
-	std::cout << "step compute 2" << std::endl;
 	GLuint FragmentShaderProgID = glCreateShaderProgramv(GL_COMPUTE_SHADER, 1, (const char**)&ComputerShaderCode);
 	GLint Result = GL_FALSE;
 	int InfoLogLength;
-	std::cout << "step compute 3" << std::endl;
+
 	glAttachShader(FragmentShaderProgID, FragmentID);
 	glLinkProgram(FragmentShaderProgID);
 	// Check the program
@@ -193,7 +189,7 @@ GLuint LoadShadersRender2(const char * fragment_file_path){
 	glDetachShader(FragmentShaderProgID, FragmentID);
 
 	glDeleteShader(FragmentID);
-	std::cout << "step compute 4" << std::endl;
+
 	glCompileShader(FragmentShaderProgID);
 	return FragmentShaderProgID;
 }
