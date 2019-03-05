@@ -67,7 +67,7 @@ layout(location = 2) in vec3 vertexNormal_modelspace;
 // Datos uniformes al objeto
 uniform vec3 LightPosition_worldspace;
 //rex 112596
-#define sizebuffer 112596
+#define sizebuffer 2000000
 
 // basic triangle data structure
 struct triangle {
@@ -313,6 +313,6 @@ void main_persistant(void)
 
 void main()
 {
-		//main_EG2015();
-		main_persistant();
+		main_EG2015();
+		//main_persistant();
 }

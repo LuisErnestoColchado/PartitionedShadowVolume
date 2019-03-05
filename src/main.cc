@@ -2,8 +2,12 @@
 #include <headers/object.h>
 #include <headers/app.h>
 #include <chrono>
+#include <ctime>
+
 GLFWwindow* window;
 std::vector<object*> objects;
+typedef std::chrono::high_resolution_clock Time;
+typedef std::chrono::duration<float> fsec;
 
 void window_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -63,14 +67,18 @@ int main(int argc, char * argv[]) {
   	/* Mainloop */
     const char * rexFile = "../data/T-rex-skeleton_21.obj";
     const char * robotFile = "../data/androrobot.obj";
+    const char * skeleton = "../data/skeleton.obj";
     const char * machineFile = "../data/machine.obj";
   	const char * raptorFile = "../data/raptor.obj";
+    //const char * houseFile = "../data/house.bmp";
   	const char * plataformFile = "../data/Empty.obj";
 		const char * textureFileRaptor = "../data/Bone.bmp";
     const char * textureFilePlata = "../data/cueva.bmp";
+
 		int sizeTriangle = 0;
 
     object* obj3D = new object(rexFile,1.0,true,sizeTriangle,textureFileRaptor);
+
     std::cout << "size triangles " <<  sizeTriangle << std::endl;
 
     object* obj3Dp = new object(plataformFile,1.0,false,sizeTriangle,textureFilePlata);
@@ -88,41 +96,24 @@ int main(int argc, char * argv[]) {
     a->getTriangles();
     a->setShadersBuild("../shaders/CS_buildingTopTree.glsl");
 
-    typedef std::chrono::high_resolution_clock Time;
-    typedef std::chrono::duration<float> fsec;
-
     int countFrame = 0;
 
+    a->cleanBuffers();
     a->buildingTOPtree();
-
-    bool flag = false;
+    //bool flag = false;
     std::cout << "===================================\n";
   	do{
-  		/* Update and render one frame */
-  		//AppFrame();
-  		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  		// Compute the MVP matrix from keyboard and mouse input
-  		computeMatricesFromInputs();
+      //if (glfwGetKey(window, GLFW_KEY_ENTER ) == GLFW_PRESS){
+      a->cleanBuffers();
+      a->buildingTOPtree();
 
-      if (glfwGetKey(window, GLFW_KEY_ENTER ) == GLFW_PRESS){
-          auto startB = Time::now();
-          a->buildingTOPtree();
-          auto endB = Time::now();
-          fsec elapsed_secondsB = endB - startB;
-          std::cout << "time Building TOPTREE: " << elapsed_secondsB.count() * 1000.0 << " milliseconds" << std::endl;
-          flag = true;
-      }
-      
-      auto startR = Time::now();
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+      // Compute the MVP matrix from keyboard and mouse input
+      computeMatricesFromInputs();
+
       a->rendering();
-      auto endR = Time::now();
-      fsec elapsed_secondsR = endR - startR;
-
-      if(flag)
-          std::cout << "time Rendering: " << elapsed_secondsR.count() * 1000.0  << " milliseconds" << std::endl;
-
-      flag = false;
 
   		/* Swap front & back buffers */
   		glfwSwapBuffers(window);
@@ -131,6 +122,7 @@ int main(int argc, char * argv[]) {
   		glfwPollEvents();
 
       countFrame++;
+
     }while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
   			glfwWindowShouldClose(window) == 0 );
 

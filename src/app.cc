@@ -1,15 +1,20 @@
 #include "headers/app.h"
 #include <new>
-#include <new>
+#include <chrono>
+#include <ctime>
+typedef std::chrono::high_resolution_clock Time;
+typedef std::chrono::duration<float> fsec;
+
 app::app(std::vector<object*> objs,
         int sizeTriangles){
 
     this->objects = objs;
     this->sizeTriangles = sizeTriangles;
 
-    this->lightPos = glm::vec4(0,15,5,0);
+//OK 0,15,5
+    this->lightPos = glm::vec4(1, 15, 2,0);
     this->colores[0] = glm::vec3(0.7,0.7,0.7);
-    this->colores[1] = glm::vec3(0.2,0.2,0.2);
+    this->colores[1] = glm::vec3(0.18,0.18,0.18);
 
     this->sizeNodes = (sizeTriangles * 4) + 1 ;
 
@@ -48,17 +53,10 @@ void app::getTriangles(){
     memcpy(p, &triangles, sizeTriangles * sizeof(triangle));
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
-}
-
-void app::setShadersBuild(const char * sFile){
-    programBuild = LoadShadersBuild(sFile);
-    lightID = glGetUniformLocation(programBuild, "LightPosition_worldspace");
-}
-
-void app::buildingTOPtree(){
-
+    //auto startB = Time::now();
     variable.node = 0;
     variable.triangle = 0;
+
     glGenBuffers(1, &TOPTREE);
     glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 13, TOPTREE);
     glBufferData(GL_SHADER_STORAGE_BUFFER,sizeNodes * sizeof(node), &nodes[0], GL_DYNAMIC_COPY);
@@ -73,17 +71,33 @@ void app::buildingTOPtree(){
     glBindBufferBase (GL_SHADER_STORAGE_BUFFER, 30, utilGL);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(util), &variable, GL_DYNAMIC_COPY);
     glUnmapBuffer( GL_SHADER_STORAGE_BUFFER );
+}
+
+void app::setShadersBuild(const char * sFile){
+    programBuild = LoadShadersBuild(sFile);
+    lightID = glGetUniformLocation(programBuild, "LightPosition_worldspace");
+}
+
+void app::buildingTOPtree(){
+
+    auto startB = Time::now();
 
     glm::mat4 lrot = glm::rotate(glm::mat4(1.0),0.0f,glm::vec3(0,1,0));
     lightPos =  lrot * lightPos;
     int factor = 1;
-    lightPos.x += 0.01*factor;
+    //lightPos.x -= 0.01*factor;
     lightPos.y += 0.01*factor;
 
     glUseProgram(programBuild);
     glUniform3f(lightID, lightPos.x, lightPos.y, lightPos.z);
     glDispatchCompute( ceil(sizeTriangles / 512.0), 1, 1);
     glMemoryBarrier( GL_SHADER_STORAGE_BARRIER_BIT );
+    glFinish();
+    auto endB = Time::now();
+    fsec elapsed_secondsB = endB - startB;
+
+
+    std::cout<<"Building Top Tree Time: "<< elapsed_secondsB.count() * 1000.0 <<'\n';
 
    /*
     * For debug
@@ -112,9 +126,16 @@ void app::buildingTOPtree(){
 
 void app::rendering(){
 
+    auto startR = Time::now();
+    //std::clock_t startR;
+    //double durationR;
+    //startR = std::clock();
     int count = 0;
-    glm::mat4 lrot = glm::rotate(glm::mat4(1.0),0.0f,glm::vec3(0,1,0));
+    /*glm::mat4 lrot = glm::rotate(glm::mat4(1.0),0.0f,glm::vec3(0,1,0));
     lightPos =  lrot * lightPos;
+    int factor = 1;
+    lightPos.x += 0.001*factor;
+    lightPos.y += 0.001*factor;*/
     for(auto object : objects){
         glUseProgram(object->programRender);
 
@@ -173,9 +194,6 @@ void app::rendering(){
                 (void*)0                          // array buffer offset
                 );
 
-        glBindBuffer (GL_SHADER_STORAGE_BUFFER, TOPTREE);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, rootGL);
-
         // Draw the triangles !
         glDrawArrays(GL_TRIANGLES, 0, object->vertices.size());
 
@@ -184,6 +202,11 @@ void app::rendering(){
         glDisableVertexAttribArray(2);
         count++;
     }
+    glFinish();
+    auto endR = Time::now();
+    fsec elapsed_secondsR = endR - startR;
+
+    std::cout<<"Rendering Time : "<< elapsed_secondsR.count() * 1000.0 << '\n';
 }
 
 void app::cleanBuffers(){
@@ -192,4 +215,23 @@ void app::cleanBuffers(){
     GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
     memcpy(p, &root, sizeof(root));
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+    for(int i = 0; i < sizeNodes;i++){
+        glm::vec4 vec = glm::vec4(0);
+        uint array[4];
+        nodes[i].plane = vec;
+                nodes[i].link[0] = 0;   nodes[i].link[1] = 0;   nodes[i].link[2] = 0;   nodes[i].link[3] = 0;
+    }
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, TOPTREE);
+    GLvoid* t = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+    memcpy(t, &nodes, this->sizeNodes *sizeof(node));
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+    variable.node = 0;
+    variable.triangle = 0;
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, utilGL);
+    GLvoid* v = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+    memcpy(v, &variable, sizeof(variable));
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
 }

@@ -155,14 +155,18 @@ void main()
 {
 		bool isGenerator = true;
 
+		//raptor
 		vec3 MaterialDiffuseColor = matColor;
-		if(matColor.x == 0.2 &&
-			 matColor.y == 0.2 &&
-			 matColor.z == 0.2){
+		//others
+		//vec3 MaterialDiffuseColor = texture(myTextureSampler, UV).rgb;
+
+		if(matColor.x == 0.24 &&
+			 matColor.y == 0.24 &&
+			 matColor.z == 0.24){
 			 isGenerator = false;
 		}
 
-		vec3 MaterialAmbientColor = vec3(0.1,0.1,0.1) * MaterialDiffuseColor;
+		vec3 MaterialAmbientColor = vec3(0.6,0.6,0.6) * MaterialDiffuseColor;
 		vec3 MaterialSpecularColor = vec3(1.0,1.0,1.0);
 
 		vec4 pos = getFragmentPosition();
@@ -188,11 +192,11 @@ void main()
 						if(cosTheta > 0.9){
 								color = MaterialDiffuseColor;
 						}
-						else if(cosTheta > 0.6){
+						else if(cosTheta > 0.6 ){
 								color = MaterialDiffuseColor * vec3(0.6,0.6,0.6);
 						}
 						else{
-								color = MaterialDiffuseColor;
+								color = MaterialSpecularColor;
 						}
 
 						if(cosAlpha > 0.95 && isGenerator == true){
@@ -205,6 +209,7 @@ void main()
 				else{
 						color = vec3(0);
 				}
-	}
+			}
+
 
 }
