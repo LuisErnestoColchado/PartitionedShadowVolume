@@ -80,6 +80,7 @@ void app::setShadersBuild(const char * sFile){
 
 void app::buildingTOPtree(){
 
+    cleanBuffers();
     auto startB = Time::now();
 
     glm::mat4 lrot = glm::rotate(glm::mat4(1.0),0.0f,glm::vec3(0,1,0));
@@ -235,3 +236,107 @@ void app::cleanBuffers(){
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
 }
+/*
+void app::improvePSV(triangle * pTriangles){
+    if(sizeof(pTriangles) / sizeof(triangle) > 0){
+      for(int i = 0; i < sizeTriangles; i++){
+          auto tri = triangles[i];
+          glm::vec3 A = tri.a - lightPos;
+          glm::vec3 B = tri.b - lightPos;
+          glm::vec3 C = tri.c - lightPos;
+
+          const glm::vec3 norm = normalize( cross(C-A, B-A) );
+          const glm::vec4 cappingPlane = glm::vec4( norm, -dot(norm,A) );
+
+          node n1,n2,n3,n4;
+          n1.plane = computePlane(A,B);
+          n2.plane = computePlane(B,C);
+          n3.plane = computePlane(C,A);
+          n4.plane = cappingPlane;
+
+          int front1 = 0; int front2 = 0; int front3 = 0; int front4 = 0;
+          int back1 = 0; int back2 = 0; int back3 = 0; int back4 = 0;
+          int intersect1 = 0; int intersect2 = 0; int intersect3 = 0; int intersect4 = 0;
+          int score1 = 0; int score2 = 0; int score3 = 0; int score4 = 0;
+          int max = 0;
+          for(int j = 0;j < sizeTriangles;j++){
+              int valuePlane1 = calculateDistance(A,B,C,n1.plane);
+              if(valuePlane1 > 0){
+                  front1++;
+              }
+              else if(valuePlane1 < 0){
+                  back1++;
+              }
+              else{
+                  intersect1++;
+              }
+              double rest = (double)(front1 - back1);
+              double abss = std::abs(rest);
+              score1 = ALPHA * abss + BETA * intersect1;
+
+              int valuePlane2 = calculateDistance(A,B,C,n2.plane);
+              if(valuePlane2 > 0){
+                  front2++;
+              }
+              else if(valuePlane2 < 0){
+                  back2++;
+              }
+              else{
+                  intersect2++;
+              }
+              score2 = ALPHA * abs(front2 - back2) + BETA * intersect2;
+
+              int valuePlane3 = calculateDistance(A,B,C,n3.plane);
+              if(valuePlane3 > 0){
+                  front3++;
+              }
+              else if(valuePlane3 < 0){
+                  back3++;
+              }
+              else{
+                  intersect3++;
+              }
+              score3 = ALPHA * abs(front3 - back3) + BETA * intersect3;
+
+              int valuePlane4 = calculateDistance(A,B,C,n4.plane);
+              if(valuePlane4 > 0){
+                  front4++;
+              }
+              else if(valuePlane4 < 0){
+                  back4++;
+              }
+              else{
+                  intersect4++;
+              }
+              score4 = ALPHA * abs(front4 - back4) + BETA * intersect4;
+
+          }
+
+          if(score1 > max(score2,score3)) max = score1;
+          else max = max(score2,score3);
+
+          if(max < score4) max = score4;
+
+
+      }
+    }
+
+}
+
+glm::vec4 computePlane(glm::vec3 v1,glm::vec3 v2)
+{
+		if ( v1.x < v2.x )
+				return glm::vec4(  normalize( cross(v1, v2-v1) ), 0.0);
+		else
+				return glm::vec4( -normalize( cross(v2, v1-v2) ), 0.0);
+}
+
+int app::calculateDistance(glm::vec3 A, glm::vec3 B, glm::vec3 C, glm::vec4 plane)
+{
+		const int sig = int(sign( dot(plane, glm::vec4(A, 1)) )) +
+						int(sign( dot(plane, glm::vec4(B, 1)) )) +
+						int(sign( dot(plane, glm::vec4(C, 1)) )) ;
+
+		return abs(sig)==3 ? sig : 0;
+}
+*/

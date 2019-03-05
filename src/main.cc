@@ -70,14 +70,17 @@ int main(int argc, char * argv[]) {
     const char * skeleton = "../data/skeleton.obj";
     const char * machineFile = "../data/machine.obj";
   	const char * raptorFile = "../data/raptor.obj";
+    const char * venusFile = "../data/venusm.obj";
+    //const char * elephamFile = "../data/elepham.obj";
     //const char * houseFile = "../data/house.bmp";
   	const char * plataformFile = "../data/Empty.obj";
 		const char * textureFileRaptor = "../data/Bone.bmp";
     const char * textureFilePlata = "../data/cueva.bmp";
 
+
 		int sizeTriangle = 0;
 
-    object* obj3D = new object(rexFile,1.0,true,sizeTriangle,textureFileRaptor);
+    object* obj3D = new object(venusFile,1.0,true,sizeTriangle,textureFileRaptor);
 
     std::cout << "size triangles " <<  sizeTriangle << std::endl;
 
@@ -98,14 +101,14 @@ int main(int argc, char * argv[]) {
 
     int countFrame = 0;
 
-    a->cleanBuffers();
-    a->buildingTOPtree();
+    //a->cleanBuffers();
+    //a->buildingTOPtree();
     //bool flag = false;
     std::cout << "===================================\n";
   	do{
 
       //if (glfwGetKey(window, GLFW_KEY_ENTER ) == GLFW_PRESS){
-      a->cleanBuffers();
+
       a->buildingTOPtree();
 
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -160,9 +160,9 @@ void main()
 		//others
 		//vec3 MaterialDiffuseColor = texture(myTextureSampler, UV).rgb;
 
-		if(matColor.x == 0.24 &&
-			 matColor.y == 0.24 &&
-			 matColor.z == 0.24){
+		if(matColor.x == 0.18 &&
+			 matColor.y == 0.18 &&
+			 matColor.z == 0.18 ){
 			 isGenerator = false;
 		}
 

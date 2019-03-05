@@ -8,24 +8,10 @@
 //machine 134777
 //raptor 2000000
 #define SIZEOFTRIANGLE 2000000
+#define ALPHA 0.01;
+#define BETA 0.01;
 class app{
 public:
-    app(std::vector<object*>,
-        int);
-    const char * computeFile;
-    const char * fragmentFile;
-    std::vector<object*> objects;
-
-    int factor= 0.0;
-
-    void setShadersBuild(const char *);
-
-    void getTriangles();
-
-    void buildingTOPtree();
-    void rendering();
-    void cleanBuffers();
-
     struct triangle {
         glm::vec4 a;
         glm::vec4 b;
@@ -41,6 +27,25 @@ public:
         uint node = 0;
         uint triangle = 0;
     } variable;
+    app(std::vector<object*>,
+        int);
+    const char * computeFile;
+    const char * fragmentFile;
+    std::vector<object*> objects;
+
+    int factor= 0.0;
+
+    void setShadersBuild(const char *);
+
+    void getTriangles();
+
+    void buildingTOPtree();
+    void rendering();
+    void cleanBuffers();
+    void improvePSV(triangle *);
+    int calculateDistance(glm::vec3, glm::vec3, glm::vec3, glm::vec4);
+    glm::vec4 computePlane(glm::vec3,glm::vec3);
+
     //112596
     triangle triangles[SIZEOFTRIANGLE];
     node nodes[SIZEOFTRIANGLE*4+1];

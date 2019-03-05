@@ -10,3 +10,5 @@
 #include "../../common/texture.h"
 #include <vector>
 #include <string>
+#include <stdlib.h>
+#include <cmath>
