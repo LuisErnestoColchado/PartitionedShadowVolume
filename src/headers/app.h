@@ -8,8 +8,7 @@
 //machine 134777
 //raptor 2000000
 #define SIZEOFTRIANGLE 2000000
-#define ALPHA 0.01;
-#define BETA 0.01;
+
 class app{
 public:
     struct triangle {
@@ -49,7 +48,8 @@ public:
     //112596
     triangle triangles[SIZEOFTRIANGLE];
     node nodes[SIZEOFTRIANGLE*4+1];
-
+    triangle optimizeTriangles[SIZEOFTRIANGLE];
+    int indexOptimizeTriangles = 0;
     //triangle * triangles;
     //node * nodes;
     GLuint TOPTREE;
@@ -65,6 +65,8 @@ public:
     uint64_t sizeTriangles = 0;
     uint64_t sizeNodes = 0;
 
+    float ALPHA = 0.01;
+    float BETA = 0.01;
 };
 
 #endif
