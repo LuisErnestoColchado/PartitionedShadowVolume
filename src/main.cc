@@ -12,8 +12,15 @@ typedef std::chrono::duration<float> fsec;
 void window_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
+struct triangle {
+    glm::vec4 a;
+    glm::vec4 b;
+    glm::vec4 c;
+};
+int main(int argc, char ** argv) {
 
-int main(int argc, char * argv[]) {
+    int option = std::stoi(argv[1]);
+
   	// Initialise GLFW
     if( !glfwInit() )
   	{
@@ -64,13 +71,18 @@ int main(int argc, char * argv[]) {
   	glEnable(GL_DEPTH_TEST);
   	// Accept fragment if it closer to the camera than the former one
   	glDepthFunc(GL_LESS);
-  	/* Mainloop */
+    /* Mainloop */
+    //std::cout << "1. PSV" << std::endl;
+    //std::cout << "2. Improve PSV" << std::endl;
+    //std::cout << "Select a option: ";
+    //std::cin >> option;
+
     const char * rexFile = "../data/T-rex-skeleton_21.obj";
     const char * robotFile = "../data/androrobot.obj";
     const char * skeleton = "../data/skeleton.obj";
     const char * machineFile = "../data/machine.obj";
   	const char * raptorFile = "../data/raptor.obj";
-    const char * venusFile = "../data/venusm.obj";
+    const char * venusFile = "../data/venusl.obj";
     //const char * elephamFile = "../data/elepham.obj";
     //const char * houseFile = "../data/house.bmp";
   	const char * plataformFile = "../data/Empty.obj";
@@ -80,7 +92,7 @@ int main(int argc, char * argv[]) {
 
 		int sizeTriangle = 0;
 
-    object* obj3D = new object(venusFile,1.0,true,sizeTriangle,textureFileRaptor);
+    object* obj3D = new object(rexFile,1.0,true,sizeTriangle,textureFileRaptor);
 
     std::cout << "size triangles " <<  sizeTriangle << std::endl;
 
@@ -97,6 +109,9 @@ int main(int argc, char * argv[]) {
 
     app * a = new app(objects,sizeTriangle);
     a->getTriangles();
+    if(option == 2){
+        a->improvePSV();
+    }
     a->setShadersBuild("../shaders/CS_buildingTopTree.glsl");
 
     int countFrame = 0;
@@ -107,24 +122,24 @@ int main(int argc, char * argv[]) {
     std::cout << "===================================\n";
   	do{
 
-      //if (glfwGetKey(window, GLFW_KEY_ENTER ) == GLFW_PRESS){
+        //if (glfwGetKey(window, GLFW_KEY_ENTER ) == GLFW_PRESS){
 
-      a->buildingTOPtree();
+        a->buildingTOPtree();
 
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-      // Compute the MVP matrix from keyboard and mouse input
-      computeMatricesFromInputs();
+        // Compute the MVP matrix from keyboard and mouse input
+        computeMatricesFromInputs();
 
-      a->rendering();
+        a->rendering();
 
-  		/* Swap front & back buffers */
-  		glfwSwapBuffers(window);
+    		/* Swap front & back buffers */
+    		glfwSwapBuffers(window);
 
-  		/* Manage events */
-  		glfwPollEvents();
+    		/* Manage events */
+    		glfwPollEvents();
 
-      countFrame++;
+        countFrame++;
 
     }while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
   			glfwWindowShouldClose(window) == 0 );

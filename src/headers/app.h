@@ -7,7 +7,8 @@
 //robot 171452
 //machine 134777
 //raptor 2000000
-#define SIZEOFTRIANGLE 2000000
+//venusl 11563
+#define SIZEOFTRIANGLE 112596
 
 class app{
 public:
@@ -41,12 +42,14 @@ public:
     void buildingTOPtree();
     void rendering();
     void cleanBuffers();
-    void improvePSV(triangle *);
+    void improvePSV();
+    int getBestTriangle(std::vector<triangle>);
     int calculateDistance(glm::vec3, glm::vec3, glm::vec3, glm::vec4);
     glm::vec4 computePlane(glm::vec3,glm::vec3);
 
     //112596
     triangle triangles[SIZEOFTRIANGLE];
+
     node nodes[SIZEOFTRIANGLE*4+1];
     triangle optimizeTriangles[SIZEOFTRIANGLE];
     int indexOptimizeTriangles = 0;
@@ -65,7 +68,7 @@ public:
     uint64_t sizeTriangles = 0;
     uint64_t sizeNodes = 0;
 
-    float ALPHA = 0.01;
+    float ALPHA = 0.0001;
     float BETA = 0.01;
 };
 

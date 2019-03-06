@@ -237,25 +237,37 @@ void app::cleanBuffers(){
 
 }
 
-void app::improvePSV(std::vector<triangle> pTriangles){
-    if(pTriangles.size() > 1){
-        int valuePlane[pTriangles.size()];
-        int countFront[pTriangles.size()];
-        int countBack[pTriangles.size()];
-        int countIntersect[pTriangles.size()];
-        int score[pTriangles.size()];
-
+int app::getBestTriangle(std::vector<triangle> pTriangles){
+      std::cout << "size " << pTriangles.size()  << std::endl;
+    if(pTriangles.size() > 0){
         int max = 0;
         int maxIndex = 0;
+        std::vector<triangle> bestFront;
 
-        std::vector<triangle> front[pTriangles.size()];
-        std::vector<triangle> back[pTriangles.size()];
-        std::vector<triangle> intersect[pTriangles.size()];
+        std::vector<triangle> bestBack;
+
+        std::vector<triangle> bestIntersect;
+
+
         for(int i = 0; i < pTriangles.size(); i++){
             auto tri = pTriangles[i];
             glm::vec3 A = tri.a - lightPos;
             glm::vec3 B = tri.b - lightPos;
             glm::vec3 C = tri.c - lightPos;
+
+            int valuePlane = 0;
+
+            int countFront = 0;
+
+            int countBack = 0;
+
+            int countIntersect = 0;
+
+            int score = 0;
+
+            std::vector<triangle> front;
+            std::vector<triangle> back;
+            std::vector<triangle> intersect;
 
             const glm::vec3 norm = normalize( cross(C-A, B-A) );
             const glm::vec4 cappingPlane = glm::vec4( norm, -dot(norm,A) );
@@ -265,45 +277,53 @@ void app::improvePSV(std::vector<triangle> pTriangles){
 
             for(int j = 0;j < pTriangles.size();j++){
                 if(i != j){
-                    glm::vec3 A_ = pTriangles[j].a - lightPos;
-                    glm::vec3 B_ = pTriangles[j].b - lightPos;
-                    glm::vec3 C_ = pTriangles[j].c - lightPos;
+                    glm::vec3 _A = pTriangles[j].a - lightPos;
+                    glm::vec3 _B = pTriangles[j].b - lightPos;
+                    glm::vec3 _C = pTriangles[j].c - lightPos;
 
-                    int valuePlane[j] = calculateDistance(A_,B_,C_,nodePlane.plane);
-                    if(valuePlane[j] > 0){
-                        countFront[i]++;
-                        front[i].push_back(pTriangles[j]);
+                    valuePlane = calculateDistance(_A,_B,_C,nodePlane.plane);
+                    if(valuePlane != 3 && valuePlane != -3 && valuePlane != 0 )
+                        std::cout << "value plane " << valuePlane << std::endl;
+                    if(valuePlane > 0){
+                        countFront++;
+                        front.push_back(pTriangles[j]);
                     }
-                    else if(valuePlane[j] < 0){
-                        countBack[i]++;
-                        back[i].push_back(pTriangles[j]);
+                    else if(valuePlane < 0){
+                        countBack++;
+                        back.push_back(pTriangles[j]);
                     }
                     else{
-                        countIntersect[i]++;
-                        intersect[i].push_back(pTriangles[j]);
+                        countIntersect++;
+                        intersect.push_back(pTriangles[j]);
                     }
                 }
             }
-            score[i] = ALPHA * abs(countFront[i] - countBack[i]) + BETA * countIntersect[i];
-            if(max < score[i]){
-                max = score[i];
+
+            score = ALPHA * abs(countFront - countBack) + BETA * countIntersect;
+            if(max < score){
+                max = score;
                 maxIndex = i;
+                bestFront = front;
+                bestBack = back;
+                bestIntersect = intersect;
             }
+            //std::cout << "i " << i << std::endl;
         }
-        optimizeTriangles[indexOptimizeTriangles] = pTriangles[maxIndex];
+        std::cout << "count front: " << bestFront.size() << std::endl;
+        std::cout << "count back: " << bestBack.size() << std::endl;
+        std::cout << "count intersect: " << bestIntersect.size() << std::endl;
+        triangles[indexOptimizeTriangles] = pTriangles[maxIndex];
         indexOptimizeTriangles++;
-        return improvePSV(front[maxIndex]);
-        return improvePSV(back[maxIndex]);
-        return improvePSV(intersect[maxIndex]);
+        return getBestTriangle(bestFront) + getBestTriangle(bestBack) + getBestTriangle(bestIntersect);
     }
     else{
-        return pTriangles[0];
+        return 0;
     }
 
 }
 
 
-glm::vec4 computePlane(glm::vec3 v1,glm::vec3 v2)
+glm::vec4 app::computePlane(glm::vec3 v1,glm::vec3 v2)
 {
 		if ( v1.x < v2.x )
 				return glm::vec4(  normalize( cross(v1, v2-v1) ), 0.0);
@@ -318,4 +338,12 @@ int app::calculateDistance(glm::vec3 A, glm::vec3 B, glm::vec3 C, glm::vec4 plan
 						int(glm::sign( dot(plane, glm::vec4(C, 1)) )) ;
 
 		return abs(sig)==3 ? sig : 0;
+}
+
+void app::improvePSV(){
+
+    std::cout << "here 1" << std::endl;
+    std::vector<triangle> vectorTriangles(std::begin(triangles), std::end(triangles));
+    std::cout << "here 2 " << vectorTriangles.size() << std::endl;
+    getBestTriangle(vectorTriangles);
 }
