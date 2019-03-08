@@ -1,26 +1,46 @@
 # Partitioned Shadow Volume
 
-## Description
-
-### Dependencies
+## Dependences
 
 This project keeps few dependencies :
-- OpenGL 4.3+ [required]
-- GLFW 3 [required]
-- GLEW 1.10+ [optional]
-- Python 2.7+ [if not using GLEW]
 
-### Build
+```
+OpenGL 4.3+ [required]
+GLFW 3 [required]
+GLEW 1.10+ [optional]
+Python 2.7+ [if not using GLEW]
+```
+
+## Build
+Copy data folder in root.
+
+```
+.
+├── ...
+└── repository                   
+│    ├── data
+│    ├── common
+│    ├── shaders
+│    ├── ...              
+└── ...
+```
 
 Enter your terminal in the project root directory and type the following :
 ```
 $ mkdir build; cd build
-$ cmake ../
-$ cmake --build .
+$ cmake ..
+$ make
 ```
 
-## Known Limitations
+## Execute
 
-On Windows's MSVC, the thirdparties directory should be specified by hand on the CMakeLists.txt file.
+```
+./psv [option]
+option can be 1: PSV and 2: IPSV, IPSV add a method for select triangle from a heuristic function
+```
 
-## Acknowledgment
+## Results
+
+![alt text](https://github.com/LuisErnestoColchado/pmvs_ba.git/images/video1.gif)
+
+![alt text](https://github.com/LuisErnestoColchado/pmvs_ba.git/images/video2.gif)

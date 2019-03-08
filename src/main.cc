@@ -125,7 +125,10 @@ int main(int argc, char ** argv) {
 
         // Compute the MVP matrix from keyboard and mouse input
         computeMatricesFromInputs();
+        if(countFrame % 100 == 0){
+            a->buildingTOPtree();
 
+        }
         a->rendering();
 
     		/* Swap front & back buffers */
@@ -133,10 +136,7 @@ int main(int argc, char ** argv) {
 
     		/* Manage events */
     		glfwPollEvents();
-        /*if(countFrame % 100 == 0){
-            std::cout << "Rendering Time " << a->fragmentTime/100 << std::endl;
-            a->fragmentTime = 0;
-        }*/
+
         countFrame++;
 
     }while( countFrame < 700 && glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
