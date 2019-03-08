@@ -41,6 +41,6 @@ option can be 1: PSV and 2: IPSV, IPSV add a method for select triangle from a h
 
 ## Results
 
-![alt text](https://github.com/LuisErnestoColchado/pmvs_ba.git/images/video1.gif)
+![alt text](https://raw.githubusercontent.com/LuisErnestoColchado/PartitionedShadowVolume/master/images/video1.gif)
 
-![alt text](https://github.com/LuisErnestoColchado/pmvs_ba.git/images/video2.gif)
+![alt text](https://raw.githubusercontent.com/LuisErnestoColchado/PartitionedShadowVolume/master/images/video2.gif)
