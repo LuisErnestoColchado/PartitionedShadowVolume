@@ -11,7 +11,7 @@ app::app(std::vector<object*> objs,
     this->objects = objs;
     this->sizeTriangles = sizeTriangles;
 
-//OK 0,15,5
+    //OK 0,15,5
     this->lightPos = glm::vec4(1, 15, 2,0);
     this->colores[0] = glm::vec3(0.7,0.7,0.7);
     this->colores[1] = glm::vec3(0.18,0.18,0.18);

@@ -1,17 +1,23 @@
 # Partitioned Shadow Volume
 
+This a replica of paper  
 ## Dependences
 
 This project keeps few dependencies :
 
 ```
-OpenGL 4.3+ [required]
-GLFW 3 [required]
-GLEW 1.10+ [optional]
-Python 2.7+ [if not using GLEW]
+OpenGL 4.3+
+GLFW 3
+GLEW 1.10+
 ```
 
 ## Build
+
+Download data:
+```
+https://drive.google.com/open?id=1bCQYOzu4BSKNwKwzprBcFBO6A_OuHtCf
+```
+
 Copy data folder in root.
 
 ```
@@ -27,7 +33,8 @@ Copy data folder in root.
 
 Enter your terminal in the project root directory and type the following :
 ```
-$ mkdir build; cd build
+$ mkdir build
+$ cd build
 $ cmake ..
 $ make
 ```
