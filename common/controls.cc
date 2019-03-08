@@ -22,15 +22,15 @@ glm::mat4 getProjectionMatrix(){
 }
 
 // Initial position : on +Z
-glm::vec3 position = glm::vec3( -5, 18, -5);
+glm::vec3 position = glm::vec3( -5, 18, -4);
 // Initial horizontal angle : toward -Z
-float horizontalAngle = 2.00f;
+float horizontalAngle = 2.10f;
 // Initial vertical angle : none
 float verticalAngle = -6.5f;
 // Initial Field of View
 float initialFoV = 45.0f;
 
-float speed = 0.001f; // 3 units / second // 0.1
+float speed = 3.0f; // 3 units / second // 0.1
 float mouseSpeed = 0.005f;
 
 void computeMatricesFromInputs(){
@@ -74,7 +74,7 @@ void computeMatricesFromInputs(){
 
 
 		// Move forward
-		/*if (glfwGetKey( window, GLFW_KEY_UP ) == GLFW_PRESS){
+		if (glfwGetKey( window, GLFW_KEY_UP ) == GLFW_PRESS){
 				position += direction * deltaTime * speed;
 		}
 		// Move backward
@@ -88,11 +88,11 @@ void computeMatricesFromInputs(){
 		// Strafe left
 		if (glfwGetKey( window, GLFW_KEY_LEFT ) == GLFW_PRESS){
 				position -= right * deltaTime * speed;
-		}*/
-		verticalAngle -= 0.0001;
-		position += direction * deltaTime * speed;
+		}
+		//verticalAngle -= 0.0001;
+		//position += direction * deltaTime * speed;
 
-		position.y += 0.001;
+		//position.y += 0.001;
 		float FoV = initialFoV;// - 5 * glfwGetMouseWheel(); // Now GLFW 3 requires setting up a callback for this. It's a bit too complicated for this beginner's tutorial, so it's disabled instead.
 
 		// Projection matrix : 45� Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units

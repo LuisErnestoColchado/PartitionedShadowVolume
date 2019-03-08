@@ -8,7 +8,9 @@
 //machine 134777
 //raptor 2000000
 //venusl 11563
-#define SIZEOFTRIANGLE 112596
+//atenea 9359
+//ELEPHAM 10150
+#define SIZEOFTRIANGLE 10150
 
 class app{
 public:
@@ -70,6 +72,10 @@ public:
 
     float ALPHA = 0.0001;
     float BETA = 0.01;
+
+    float fragmentTime = 0;
+    float buildingTime = 0;
+    float timeImprovePSV = 0;
 };
 
 #endif

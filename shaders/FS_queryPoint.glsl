@@ -156,15 +156,18 @@ void main()
 		bool isGenerator = true;
 
 		//raptor
-		vec3 MaterialDiffuseColor = matColor;
+		vec3 MaterialDiffuseColor;
 		//others
-		//vec3 MaterialDiffuseColor = texture(myTextureSampler, UV).rgb;
 
 		if(matColor.x == 0.18 &&
 			 matColor.y == 0.18 &&
 			 matColor.z == 0.18 ){
 			 isGenerator = false;
 		}
+		//if(isGenerator == false)
+		MaterialDiffuseColor = texture(myTextureSampler, UV).rgb;
+		//else
+		//MaterialDiffuseColor = matColor;
 
 		vec3 MaterialAmbientColor = vec3(0.6,0.6,0.6) * MaterialDiffuseColor;
 		vec3 MaterialSpecularColor = vec3(1.0,1.0,1.0);
@@ -199,7 +202,7 @@ void main()
 								color = MaterialSpecularColor;
 						}
 
-						if(cosAlpha > 0.95 && isGenerator == true){
+						if(cosAlpha > 0.90 && isGenerator == true){
 								color = MaterialSpecularColor;
 						}
 						else{

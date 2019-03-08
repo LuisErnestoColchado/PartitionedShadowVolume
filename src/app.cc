@@ -87,7 +87,7 @@ void app::buildingTOPtree(){
     lightPos =  lrot * lightPos;
     int factor = 1;
     //lightPos.x -= 0.01*factor;
-    lightPos.y += 0.01*factor;
+    lightPos.y += 2*factor;
 
     glUseProgram(programBuild);
     glUniform3f(lightID, lightPos.x, lightPos.y, lightPos.z);
@@ -98,8 +98,8 @@ void app::buildingTOPtree(){
     fsec elapsed_secondsB = endB - startB;
 
 
-    std::cout<<"Building Top Tree Time: "<< elapsed_secondsB.count() * 1000.0 <<'\n';
-
+    //std::cout<<"Building Top Tree Time: "<< elapsed_secondsB.count() * 1000.0 <<'\n';
+    buildingTime += elapsed_secondsB.count() * 1000.0;
    /*
     * For debug
     *
@@ -207,7 +207,8 @@ void app::rendering(){
     auto endR = Time::now();
     fsec elapsed_secondsR = endR - startR;
 
-    std::cout<<"Rendering Time : "<< elapsed_secondsR.count() * 1000.0 << '\n';
+    //std::cout<<"Rendering Time : "<< elapsed_secondsR.count() * 1000.0 << '\n';
+    fragmentTime += elapsed_secondsR.count() * 1000.0;
 }
 
 void app::cleanBuffers(){
@@ -238,7 +239,6 @@ void app::cleanBuffers(){
 }
 
 int app::getBestTriangle(std::vector<triangle> pTriangles){
-      std::cout << "size " << pTriangles.size()  << std::endl;
     if(pTriangles.size() > 0){
         int max = 0;
         int maxIndex = 0;
@@ -248,22 +248,21 @@ int app::getBestTriangle(std::vector<triangle> pTriangles){
 
         std::vector<triangle> bestIntersect;
 
-
         for(int i = 0; i < pTriangles.size(); i++){
             auto tri = pTriangles[i];
             glm::vec3 A = tri.a - lightPos;
             glm::vec3 B = tri.b - lightPos;
             glm::vec3 C = tri.c - lightPos;
 
-            int valuePlane = 0;
+            float valuePlane = 0;
 
-            int countFront = 0;
+            float countFront = 0;
 
-            int countBack = 0;
+            float countBack = 0;
 
-            int countIntersect = 0;
+            float countIntersect = 0;
 
-            int score = 0;
+            float score = 0;
 
             std::vector<triangle> front;
             std::vector<triangle> back;
@@ -282,13 +281,12 @@ int app::getBestTriangle(std::vector<triangle> pTriangles){
                     glm::vec3 _C = pTriangles[j].c - lightPos;
 
                     valuePlane = calculateDistance(_A,_B,_C,nodePlane.plane);
-                    if(valuePlane != 3 && valuePlane != -3 && valuePlane != 0 )
-                        std::cout << "value plane " << valuePlane << std::endl;
-                    if(valuePlane > 0){
+
+                    if(valuePlane > 0.0){
                         countFront++;
                         front.push_back(pTriangles[j]);
                     }
-                    else if(valuePlane < 0){
+                    else if(valuePlane < 0.0){
                         countBack++;
                         back.push_back(pTriangles[j]);
                     }
@@ -306,12 +304,9 @@ int app::getBestTriangle(std::vector<triangle> pTriangles){
                 bestFront = front;
                 bestBack = back;
                 bestIntersect = intersect;
+
             }
-            //std::cout << "i " << i << std::endl;
         }
-        std::cout << "count front: " << bestFront.size() << std::endl;
-        std::cout << "count back: " << bestBack.size() << std::endl;
-        std::cout << "count intersect: " << bestIntersect.size() << std::endl;
         triangles[indexOptimizeTriangles] = pTriangles[maxIndex];
         indexOptimizeTriangles++;
         return getBestTriangle(bestFront) + getBestTriangle(bestBack) + getBestTriangle(bestIntersect);
@@ -341,9 +336,10 @@ int app::calculateDistance(glm::vec3 A, glm::vec3 B, glm::vec3 C, glm::vec4 plan
 }
 
 void app::improvePSV(){
-
-    std::cout << "here 1" << std::endl;
+    auto startI = Time::now();
     std::vector<triangle> vectorTriangles(std::begin(triangles), std::end(triangles));
-    std::cout << "here 2 " << vectorTriangles.size() << std::endl;
     getBestTriangle(vectorTriangles);
+    auto endI = Time::now();
+    fsec elapsed_secondsI = endI - startI;
+    timeImprovePSV += elapsed_secondsI.count() * 1000.0;
 }
