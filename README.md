@@ -1,9 +1,10 @@
 # Partitioned Shadow Volume
 
-This a replica of paper  
+This a developed of Partitioned Shadow Volume, in based to a research of Frédéric Mora, Julien Gerhards, L. Aveneau and D. Ghazanfarpour. This method of shadow use a structure called TOP TREE for storage the triangles of scene, and improve the storage of memory and query point in the redering time.
+
 ## Dependences
 
-This project keeps few dependencies :
+This project keeps few dependencies:
 
 ```
 OpenGL 4.3+
